@@ -1,12 +1,11 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <math.h>
 #include <stdio.h>
 #include <vector>
 
 #include "args.hxx"
-
-
 
 /*
 printf strings:
@@ -26,14 +25,21 @@ printf("| -> 0b%s", argv[i+1]);
 using namespace std;
 
 string hex2bin(string hex);
+unsigned long long int hex2dec(string hex);
+int bin2hex(uint32_t bin);
+unsigned long long int bin2dec(string bin);
+void print_char_array_as_num(char arr[], int len);
+string dec2bin(int dec);
 
 class Numvert {
 
-private:
 public:
   vector<string> hex;
   vector<string> dec;
   vector<string> bin;
+
+  bool printFullOutput;
+  bool printOctOutput;
   bool outputToOct;
   bool outputBinWithSpace;
   bool errorNoFlags;
@@ -50,83 +56,118 @@ public:
         } else if (arg.at(1) == 'h') {
 
         } else {
-
         }
       }
     }
-  };
+  }
+
+private:
 };
 
 int main(int argc, char **argv) {
 
-    args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ALL TO HIM");
-    args::Group parameters(parser, "Output options:", args::Group::Validators::DontCare);
-    args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
+  args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ALL TO HIM");
+  args::Group parameters(
+      parser, "Output formating options:", args::Group::Validators::DontCare);
+  args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
-    args::ValueFlag<string> binary(parser, "Binary", "Binary input", {'b', "bin"});
-    args::ValueFlag<int> decimal(parser, "Decimal", "Decimial input", {'i', "dec"});
-    args::ValueFlag<string> hexadecimal(parser, "Hexadecimal", "Hexadecimal input", {'h', "hex"});
-    args::ValueFlag<string> octadeicmal(parser, "Octadecimal", "Octadecimal input", {'o', "oct"});
+  args::ValueFlagList<string> binaryInput(parser, "Binary", "Binary input",
+                                          {'b', "bin"});
+  args::ValueFlagList<int> decimalInput(parser, "Decimal", "Decimial input",
+                                        {'i', "dec"});
+  args::ValueFlagList<string> hexadecimalInput(
+      parser, "Hexadecimal", "Hexadecimal input", {'h', "hex"});
+  args::ValueFlag<string> octadeicmalInput(parser, "Octadecimal",
+                                           "Octadecimal input", {'o', "oct"});
 
-    args::Flag printFull(parameters, "Print Full", "Prints advanced output", {'f', "full"});
+  args::Flag printFull(parameters, "Print Full", "Prints advanced output",
+                       {'f', "full"});
+  args::Flag printBinSpace4(parameters, "Print space 4",
+                            "Prints spaces inbetween every fourth binary bit",
+                            {"b4"});
+  args::Flag printBinSpace8(parameters, "Print space 8",
+                            "Prints spaces inbetween every byte", {"b8"});
 
+  args::Flag signedBinInput(parameters, "Signed Binary Input",
+                            "Marks all binary input as signed values", {"sb"});
 
-    try
-    {
-        parser.ParseCLI(argc, argv);
+  try {
+    parser.ParseCLI(argc, argv);
+  } catch (args::Help) {
+    std::cout << parser;
+    return 0;
+  } catch (args::ParseError e) {
+    std::cerr << e.what() << std::endl;
+    std::cerr << parser;
+    return 1;
+  } catch (args::ValidationError e) {
+    std::cerr << e.what() << std::endl;
+    std::cerr << parser;
+    return 1;
+  }
+
+  printf("+------------------------------------------------+\n\r");
+
+  if (binaryInput) {
+    for (string bin : args::get(binaryInput)) {
+      printf("HEX : %s\n\r", "hello");
+      printf("DEC : %lld\n\r", bin2dec(bin));
+      printf("BIN : %s\n\r", bin.c_str());
+
+      printf("+------------------------------------------------+\n\r");
     }
-    catch (args::Help)
-    {
-        std::cout << parser;
-        return 0;
+  }
+  if (decimalInput) {
+    std::cout << "d: " << args::get(decimalInput)[0] << std::endl;
+  }
+  if (hexadecimalInput) {
+    for (string hex : args::get(hexadecimalInput)) {
+
+      printf("HEX : %s\n\r", hex.c_str());
+      printf("DEC : %llu\n\r", hex2dec(hex));
+      printf("BIN : %s\n\r", hex2bin(hex).c_str());
+
+      printf("+------------------------------------------------+\n\r");
     }
-    catch (args::ParseError e)
-    {
-        std::cerr << e.what() << std::endl;
-        std::cerr << parser;
-        return 1;
-    }
-    catch (args::ValidationError e)
-    {
-        std::cerr << e.what() << std::endl;
-        std::cerr << parser;
-        return 1;
-    }
+  }
 
-    if (binary) { std::cout << "b: " << args::get(binary) << std::endl; }
-    if (decimal) { std::cout << "d: " << args::get(decimal) << std::endl; }
-    if (hexadecimal) { std::cout << "h: " << args::get(hexadecimal) << std::endl; }
+  //   printf("+------------------------------------------------+\n\r");
 
+  //   for (int i = 0; i < argc; i++) {
 
-//   printf("+------------------------------------------------+\n\r");
+  //     // printf("Argument %d : %s\n", i, argv[i]);
+  //     if (argv[i][0] == '-') {
 
-//   for (int i = 0; i < argc; i++) {
+  //       if (argv[i][1] == 'h') {
 
-//     // printf("Argument %d : %s\n", i, argv[i]);
-//     if (argv[i][0] == '-') {
+  //         printf("| HEX: 0x%s\n\r", argv[i + 1]);
+  //         printf("| DEC: \n\r");
+  //         printf("| BIN: %s\n\r", hex2bin(argv[i + 1]).c_str());
 
-//       if (argv[i][1] == 'h') {
+  //       } else if (argv[i][1] == 'd') {
+  //         printf("| HEX: 0x\n\r");
+  //         printf("| DEC: %s\n\r", argv[i + 1]);
+  //         printf("| BIN: 0b\n\r");
 
-//         printf("| HEX: 0x%s\n\r", argv[i + 1]);
-//         printf("| DEC: \n\r");
-//         printf("| BIN: %s\n\r", hex2bin(argv[i + 1]).c_str());
+  //       } else if (argv[i][1] == 'b') {
+  //         printf("| HEX: \n\r");
+  //         printf("| DEC: \n\r");
+  //         printf("| BIN: 0b%s\n\r", argv[i + 1]);
 
-//       } else if (argv[i][1] == 'd') {
-//         printf("| HEX: 0x\n\r");
-//         printf("| DEC: %s\n\r", argv[i + 1]);
-//         printf("| BIN: 0b\n\r");
+  //       } else {
+  //         printf("| ERROR: invalid tag '%s'\n\r", argv[i]);
+  //       }
+  //       printf("+------------------------------------------------+\n\r");
+  //     }
+  //   }
 
-//       } else if (argv[i][1] == 'b') {
-//         printf("| HEX: \n\r");
-//         printf("| DEC: \n\r");
-//         printf("| BIN: 0b%s\n\r", argv[i + 1]);
-
-//       } else {
-//         printf("| ERROR: invalid tag '%s'\n\r", argv[i]);
-//       }
-//       printf("+------------------------------------------------+\n\r");
-//     }
-//   }
+  // hex conversion using std::hex
+  // std::cout << "HEX: " << args::get(hexadecimal) << std::endl;
+  // long long int decOutput;
+  // std::stringstream ss;
+  // ss << args::get(hexadecimal);
+  // ss >> std::hex >> decOutput;
+  // std::cout << "DEC: " << decOutput << std::endl;
 
   return 0;
 }
@@ -199,6 +240,60 @@ string hex2bin(string hex) {
     }
     i++;
   }
-
   return bin;
+}
+
+unsigned long long int hex2dec(string hex) {
+
+  long long int dec = 0;
+  int pos = 1;
+  int i = 0;
+  while (hex[i]) {
+    if (hex[i] >= '0' && hex[i] <= '9') {
+      dec += (hex[i] - 48) * pos;
+      pos *= 16;
+    } else if (hex[i] >= 'a' && hex[i] <= 'f') {
+      dec += (hex[i] - 87) * pos;
+      pos *= 16;
+    } else if (hex[i] >= 'A' && hex[i] <= 'F') {
+      dec += (hex[i] - 55) * pos;
+      pos *= 16;
+    } else {
+      return 0;
+    }
+    i++;
+  }
+
+  return dec;
+}
+
+int bin2hex(uint32_t bin) { return 10; }
+
+unsigned long long int bin2dec(string bin) {
+  unsigned long long int dec = 0;
+  int pos = 0;
+  int i = bin.length() - 1;
+  while (i >= 0) {
+    dec = dec + (bin[i] - 48) * (pow(2, pos));
+    pos++;
+    i--;
+  }
+  return dec;
+}
+
+string dec2bin(int dec) {
+  int bin = 0, i = 0, rem;
+  while (dec != 0) {
+    rem = dec % 2;
+    dec /= 10;
+    bin += rem * pow(2, i);
+    i++;
+  }
+}
+
+void print_char_array_as_num(char arr[], int len) {
+  int i;
+  for (i = 0; i < len; i++) {
+    printf("%u", arr[i] - 48);
+  }
 }
