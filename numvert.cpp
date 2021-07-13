@@ -1,35 +1,23 @@
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
+#include <string>
 #include <vector>
 
 #include "args.hxx"
 
-/*
-printf strings:
-
-printf("+------------------------------------------------+\n\r");
-printf("| ERROR: invalid tag '%s'\n\r", argv[i]);
-
-printf("| -> 0b%s", argv[i+1]);
-
-
-
-
-
-
-*/
-
 using namespace std;
 
-string hex2bin(string hex);
-unsigned long long int hex2dec(string hex);
-int bin2hex(uint32_t bin);
-unsigned long long int bin2dec(string bin);
+string hex_to_bin_with_space(string hex, int spacing_option);
+int bin_to_hex(uint32_t bin);
 void print_char_array_as_num(char arr[], int len);
-string dec2bin(int dec);
+string dec_to_bin(int dec);
+
+unsigned long long int bin_to_int(string bin);
+unsigned long long int hex_to_int(string hex);
 
 class Numvert {
 
@@ -71,22 +59,23 @@ int main(int argc, char **argv) {
       parser, "Output formating options:", args::Group::Validators::DontCare);
   args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
-  args::ValueFlagList<string> binaryInput(parser, "Binary", "Binary input",
-                                          {'b', "bin"});
-  args::ValueFlagList<int> decimalInput(parser, "Decimal", "Decimial input",
-                                        {'i', "dec"});
   args::ValueFlagList<string> hexadecimalInput(
       parser, "Hexadecimal", "Hexadecimal input", {'h', "hex"});
+  args::ValueFlagList<unsigned long long int> decimalInput(
+      parser, "Decimal", "Decimial input", {'i', 'd', "dec"});
+  args::ValueFlagList<string> binaryInput(parser, "Binary", "Binary input",
+                                          {'b', "bin"});
+
   args::ValueFlag<string> octadeicmalInput(parser, "Octadecimal",
                                            "Octadecimal input", {'o', "oct"});
 
   args::Flag printFull(parameters, "Print Full", "Prints advanced output",
                        {'f', "full"});
-  args::Flag printBinSpace4(parameters, "Print space 4",
-                            "Prints spaces inbetween every fourth binary bit",
-                            {"b4"});
-  args::Flag printBinSpace8(parameters, "Print space 8",
-                            "Prints spaces inbetween every byte", {"b8"});
+
+  args::ValueFlag<int> printBinSpace(
+      parameters, "Print space 4 or 8",
+      "Prints spaces inbetween every forth binary bit or every byte",
+      {'s'}); // TODO varify input
 
   args::Flag signedBinInput(parameters, "Signed Binary Input",
                             "Marks all binary input as signed values", {"sb"});
@@ -107,181 +96,197 @@ int main(int argc, char **argv) {
   }
 
   printf("+------------------------------------------------+\n\r");
+  if (hexadecimalInput) {
+    for (string hex : args::get(hexadecimalInput)) {
 
-  if (binaryInput) {
-    for (string bin : args::get(binaryInput)) {
-      printf("HEX : %s\n\r", "hello");
-      printf("DEC : %lld\n\r", bin2dec(bin));
-      printf("BIN : %s\n\r", bin.c_str());
+      printf("[0x%s]\n\r", hex.c_str());
 
+      printf("\tHEX : 0x%s\n\r", hex.c_str());
+      printf("\tDEC : %llu\n\r", hex_to_int(hex));
+      if (printBinSpace) {
+        printf("\tBIN : %s\n\r", hex_to_bin_with_space(hex, args::get(printBinSpace)).c_str());
+      } else {
+        printf("\tBIN : %s\n\r", hex_to_bin_with_space(hex, 4).c_str());
+      }
       printf("+------------------------------------------------+\n\r");
     }
   }
   if (decimalInput) {
-    std::cout << "d: " << args::get(decimalInput)[0] << std::endl;
-  }
-  if (hexadecimalInput) {
-    for (string hex : args::get(hexadecimalInput)) {
+    for (unsigned long long int dec : decimalInput) {
 
-      printf("HEX : %s\n\r", hex.c_str());
-      printf("DEC : %llu\n\r", hex2dec(hex));
-      printf("BIN : %s\n\r", hex2bin(hex).c_str());
+      printf("[%llu]\n\r", dec);
+      printf("\tHEX : 0x%s\n\r", "hello");
+      printf("\tDEC : %llu\n\r", dec);
+      printf("\tBIN : %s\n\r", "hello");
 
       printf("+------------------------------------------------+\n\r");
     }
   }
+  if (binaryInput) {
+    for (string bin : args::get(binaryInput)) {
 
-  //   printf("+------------------------------------------------+\n\r");
+      printf("[0b%s]\n\r", bin.c_str());
+      printf("\tHEX : 0x%s\n\r", "hello");
+      printf("\tDEC : %llu\n\r", bin_to_int(bin));
+      printf("\tBIN : %s\n\r", bin.c_str());
 
-  //   for (int i = 0; i < argc; i++) {
-
-  //     // printf("Argument %d : %s\n", i, argv[i]);
-  //     if (argv[i][0] == '-') {
-
-  //       if (argv[i][1] == 'h') {
-
-  //         printf("| HEX: 0x%s\n\r", argv[i + 1]);
-  //         printf("| DEC: \n\r");
-  //         printf("| BIN: %s\n\r", hex2bin(argv[i + 1]).c_str());
-
-  //       } else if (argv[i][1] == 'd') {
-  //         printf("| HEX: 0x\n\r");
-  //         printf("| DEC: %s\n\r", argv[i + 1]);
-  //         printf("| BIN: 0b\n\r");
-
-  //       } else if (argv[i][1] == 'b') {
-  //         printf("| HEX: \n\r");
-  //         printf("| DEC: \n\r");
-  //         printf("| BIN: 0b%s\n\r", argv[i + 1]);
-
-  //       } else {
-  //         printf("| ERROR: invalid tag '%s'\n\r", argv[i]);
-  //       }
-  //       printf("+------------------------------------------------+\n\r");
-  //     }
-  //   }
-
-  // hex conversion using std::hex
-  // std::cout << "HEX: " << args::get(hexadecimal) << std::endl;
-  // long long int decOutput;
-  // std::stringstream ss;
-  // ss << args::get(hexadecimal);
-  // ss >> std::hex >> decOutput;
-  // std::cout << "DEC: " << decOutput << std::endl;
-
+      printf("+------------------------------------------------+\n\r");
+    }
+  }
   return 0;
 }
 
-string hex2bin(string hex) {
-  string bin = "0b";
 
-  int i = 0;
-  while (hex[i]) {
+// TODO break binary string up
 
-    switch (hex[i]) {
-    case '0':
-      bin.append("0000");
-      break;
-    case '1':
-      bin.append("0001");
-      break;
-    case '2':
-      bin.append("0010");
-      break;
-    case '3':
-      bin.append("0011");
-      break;
-    case '4':
-      bin.append("0100");
-      break;
-    case '5':
-      bin.append("0101");
-      break;
-    case '6':
-      bin.append("0110");
-      break;
-    case '7':
-      bin.append("0111");
-      break;
-    case '8':
-      bin.append("1000");
-      break;
-    case '9':
-      bin.append("1001");
-      break;
-    case 'A':
-    case 'a':
-      bin.append("1010");
-      break;
-    case 'B':
-    case 'b':
-      bin.append("1011");
-      break;
-    case 'C':
-    case 'c':
-      bin.append("1100");
-      break;
-    case 'D':
-    case 'd':
-      bin.append("1101");
-      break;
-    case 'E':
-    case 'e':
-      bin.append("1110");
-      break;
-    case 'F':
-    case 'f':
-      bin.append("1111");
-      break;
-    default:
-      string returnError = "ERROR: unable to parse Hex, invalid character: \'";
-      returnError = returnError + hex[i] + '\'';
-      return returnError;
+
+string hex_to_bin_with_space(string hex, int spacing_option) {
+  string bin = "";
+  if (spacing_option == 4) {
+    int i = 0;
+    while (hex[i]) {
+      switch (hex[i]) {
+      case '0':
+        bin.append("0000 ");
+        break;
+      case '1':
+        bin.append("0001 ");
+        break;
+      case '2':
+        bin.append("0010 ");
+        break;
+      case '3':
+        bin.append("0011 ");
+        break;
+      case '4':
+        bin.append("0100 ");
+        break;
+      case '5':
+        bin.append("0101 ");
+        break;
+      case '6':
+        bin.append("0110 ");
+        break;
+      case '7':
+        bin.append("0111 ");
+        break;
+      case '8':
+        bin.append("1000 ");
+        break;
+      case '9':
+        bin.append("1001 ");
+        break;
+      case 'A':
+      case 'a':
+        bin.append("1010 ");
+        break;
+      case 'B':
+      case 'b':
+        bin.append("1011 ");
+        break;
+      case 'C':
+      case 'c':
+        bin.append("1100 ");
+        break;
+      case 'D':
+      case 'd':
+        bin.append("1101 ");
+        break;
+      case 'E':
+      case 'e':
+        bin.append("1110 ");
+        break;
+      case 'F':
+      case 'f':
+        bin.append("1111 ");
+        break;
+      default:
+        string returnError =
+            "ERROR: unable to parse Hex, invalid character: \'";
+        returnError = returnError + hex[i] + '\'';
+        return returnError;
+      }
+      i++;
     }
-    i++;
+  } else if (spacing_option == 8) {
+    int i = 0;
+    while (hex[i]) {
+      switch (hex[i]) {
+      case '0':
+        bin.append("0000");
+        break;
+      case '1':
+        bin.append("0001");
+        break;
+      case '2':
+        bin.append("0010");
+        break;
+      case '3':
+        bin.append("0011");
+        break;
+      case '4':
+        bin.append("0100");
+        break;
+      case '5':
+        bin.append("0101");
+        break;
+      case '6':
+        bin.append("0110");
+        break;
+      case '7':
+        bin.append("0111");
+        break;
+      case '8':
+        bin.append("1000");
+        break;
+      case '9':
+        bin.append("1001");
+        break;
+      case 'A':
+      case 'a':
+        bin.append("1010");
+        break;
+      case 'B':
+      case 'b':
+        bin.append("1011");
+        break;
+      case 'C':
+      case 'c':
+        bin.append("1100");
+        break;
+      case 'D':
+      case 'd':
+        bin.append("1101");
+        break;
+      case 'E':
+      case 'e':
+        bin.append("1110");
+        break;
+      case 'F':
+      case 'f':
+        bin.append("1111");
+        break;
+      default:
+        string returnError =
+            "ERROR: unable to parse Hex, invalid character: \'";
+        returnError = returnError + hex[i] + '\'';
+        return returnError;
+      }
+
+      i++;
+
+      if (i % 2 == 0) {
+        bin.append(" ");
+      }
+    }
+  } else {
   }
   return bin;
 }
 
-unsigned long long int hex2dec(string hex) {
+int bin_to_hex(uint32_t bin) { return 1; }
 
-  long long int dec = 0;
-  int pos = 1;
-  int i = 0;
-  while (hex[i]) {
-    if (hex[i] >= '0' && hex[i] <= '9') {
-      dec += (hex[i] - 48) * pos;
-      pos *= 16;
-    } else if (hex[i] >= 'a' && hex[i] <= 'f') {
-      dec += (hex[i] - 87) * pos;
-      pos *= 16;
-    } else if (hex[i] >= 'A' && hex[i] <= 'F') {
-      dec += (hex[i] - 55) * pos;
-      pos *= 16;
-    } else {
-      return 0;
-    }
-    i++;
-  }
-
-  return dec;
-}
-
-int bin2hex(uint32_t bin) { return 10; }
-
-unsigned long long int bin2dec(string bin) {
-  unsigned long long int dec = 0;
-  int pos = 0;
-  int i = bin.length() - 1;
-  while (i >= 0) {
-    dec = dec + (bin[i] - 48) * (pow(2, pos));
-    pos++;
-    i--;
-  }
-  return dec;
-}
-
-string dec2bin(int dec) {
+string dec_to_bin(int dec) {
   int bin = 0, i = 0, rem;
   while (dec != 0) {
     rem = dec % 2;
@@ -289,11 +294,17 @@ string dec2bin(int dec) {
     bin += rem * pow(2, i);
     i++;
   }
+  return "hello";
 }
 
-void print_char_array_as_num(char arr[], int len) {
-  int i;
-  for (i = 0; i < len; i++) {
-    printf("%u", arr[i] - 48);
-  }
+unsigned long long int bin_to_int(string bin) {
+  return stoull(bin, nullptr, 2);
 }
+
+unsigned long long int hex_to_int(string hex) {
+  return stoull(hex, nullptr, 16);
+}
+
+string decimialToBinaryString(unsigned long long int) { return "10"; }
+
+string decimialToHexadecimialString(unsigned long long int) { return "10"; }
