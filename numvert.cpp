@@ -1,13 +1,14 @@
+#include "args.hxx"
+#include <bitset>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
-
-#include "args.hxx"
 
 using namespace std;
 
@@ -18,6 +19,9 @@ string dec_to_bin(int dec);
 
 unsigned long long int bin_to_int(string bin);
 unsigned long long int hex_to_int(string hex);
+
+string dec_to_bin_with_spaces(unsigned long long int dec);
+string dec_to_hex(unsigned long long int dec);
 
 class Numvert {
 
@@ -73,9 +77,9 @@ int main(int argc, char **argv) {
                        {'f', "full"});
 
   args::ValueFlag<int> printBinSpace(
-      parameters, "Print space 4 or 8",
+      parameters, "4 or 8",
       "Prints spaces inbetween every forth binary bit or every byte",
-      {'s'}); // TODO varify input
+      {'s'}); // TODO input validation
 
   args::Flag signedBinInput(parameters, "Signed Binary Input",
                             "Marks all binary input as signed values", {"sb"});
@@ -104,9 +108,10 @@ int main(int argc, char **argv) {
       printf("\tHEX : 0x%s\n\r", hex.c_str());
       printf("\tDEC : %llu\n\r", hex_to_int(hex));
       if (printBinSpace) {
-        printf("\tBIN : %s\n\r", hex_to_bin_with_space(hex, args::get(printBinSpace)).c_str());
+        printf("\tBIN : %s\n\r",
+               hex_to_bin_with_space(hex, args::get(printBinSpace)).c_str());
       } else {
-        printf("\tBIN : %s\n\r", hex_to_bin_with_space(hex, 4).c_str());
+        printf("\tBIN : %s\n\r", hex_to_bin_with_space(hex, 0).c_str());
       }
       printf("+------------------------------------------------+\n\r");
     }
@@ -115,9 +120,9 @@ int main(int argc, char **argv) {
     for (unsigned long long int dec : decimalInput) {
 
       printf("[%llu]\n\r", dec);
-      printf("\tHEX : 0x%s\n\r", "hello");
+      printf("\tHEX : %llx\n\r", dec);
       printf("\tDEC : %llu\n\r", dec);
-      printf("\tBIN : %s\n\r", "hello");
+      printf("\tBIN : %s\n\r", dec_to_bin_with_spaces(dec).c_str());
 
       printf("+------------------------------------------------+\n\r");
     }
@@ -126,7 +131,7 @@ int main(int argc, char **argv) {
     for (string bin : args::get(binaryInput)) {
 
       printf("[0b%s]\n\r", bin.c_str());
-      printf("\tHEX : 0x%s\n\r", "hello");
+      printf("\tHEX : %s\n\r", "hello");
       printf("\tDEC : %llu\n\r", bin_to_int(bin));
       printf("\tBIN : %s\n\r", bin.c_str());
 
@@ -136,166 +141,88 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-
 // TODO break binary string up
-
 
 string hex_to_bin_with_space(string hex, int spacing_option) {
   string bin = "";
-  if (spacing_option == 4) {
-    int i = 0;
-    while (hex[i]) {
-      switch (hex[i]) {
-      case '0':
-        bin.append("0000 ");
-        break;
-      case '1':
-        bin.append("0001 ");
-        break;
-      case '2':
-        bin.append("0010 ");
-        break;
-      case '3':
-        bin.append("0011 ");
-        break;
-      case '4':
-        bin.append("0100 ");
-        break;
-      case '5':
-        bin.append("0101 ");
-        break;
-      case '6':
-        bin.append("0110 ");
-        break;
-      case '7':
-        bin.append("0111 ");
-        break;
-      case '8':
-        bin.append("1000 ");
-        break;
-      case '9':
-        bin.append("1001 ");
-        break;
-      case 'A':
-      case 'a':
-        bin.append("1010 ");
-        break;
-      case 'B':
-      case 'b':
-        bin.append("1011 ");
-        break;
-      case 'C':
-      case 'c':
-        bin.append("1100 ");
-        break;
-      case 'D':
-      case 'd':
-        bin.append("1101 ");
-        break;
-      case 'E':
-      case 'e':
-        bin.append("1110 ");
-        break;
-      case 'F':
-      case 'f':
-        bin.append("1111 ");
-        break;
-      default:
-        string returnError =
-            "ERROR: unable to parse Hex, invalid character: \'";
-        returnError = returnError + hex[i] + '\'';
-        return returnError;
-      }
-      i++;
+  int i = 0;
+  while (hex[i]) {
+    switch (hex[i]) {
+    case '0':
+      bin.append("0000");
+      break;
+    case '1':
+      bin.append("0001");
+      break;
+    case '2':
+      bin.append("0010");
+      break;
+    case '3':
+      bin.append("0011");
+      break;
+    case '4':
+      bin.append("0100");
+      break;
+    case '5':
+      bin.append("0101");
+      break;
+    case '6':
+      bin.append("0110");
+      break;
+    case '7':
+      bin.append("0111");
+      break;
+    case '8':
+      bin.append("1000");
+      break;
+    case '9':
+      bin.append("1001");
+      break;
+    case 'A':
+    case 'a':
+      bin.append("1010");
+      break;
+    case 'B':
+    case 'b':
+      bin.append("1011");
+      break;
+    case 'C':
+    case 'c':
+      bin.append("1100");
+      break;
+    case 'D':
+    case 'd':
+      bin.append("1101");
+      break;
+    case 'E':
+    case 'e':
+      bin.append("1110");
+      break;
+    case 'F':
+    case 'f':
+      bin.append("1111");
+      break;
+    default:
+      string returnError = "ERROR: unable to parse Hex, invalid character: \'";
+      returnError = returnError + hex[i] + '\'';
+      return returnError;
     }
-  } else if (spacing_option == 8) {
-    int i = 0;
-    while (hex[i]) {
-      switch (hex[i]) {
-      case '0':
-        bin.append("0000");
-        break;
-      case '1':
-        bin.append("0001");
-        break;
-      case '2':
-        bin.append("0010");
-        break;
-      case '3':
-        bin.append("0011");
-        break;
-      case '4':
-        bin.append("0100");
-        break;
-      case '5':
-        bin.append("0101");
-        break;
-      case '6':
-        bin.append("0110");
-        break;
-      case '7':
-        bin.append("0111");
-        break;
-      case '8':
-        bin.append("1000");
-        break;
-      case '9':
-        bin.append("1001");
-        break;
-      case 'A':
-      case 'a':
-        bin.append("1010");
-        break;
-      case 'B':
-      case 'b':
-        bin.append("1011");
-        break;
-      case 'C':
-      case 'c':
-        bin.append("1100");
-        break;
-      case 'D':
-      case 'd':
-        bin.append("1101");
-        break;
-      case 'E':
-      case 'e':
-        bin.append("1110");
-        break;
-      case 'F':
-      case 'f':
-        bin.append("1111");
-        break;
-      default:
-        string returnError =
-            "ERROR: unable to parse Hex, invalid character: \'";
-        returnError = returnError + hex[i] + '\'';
-        return returnError;
-      }
 
-      i++;
-
+    i++;
+    // append propper spacing
+    if (spacing_option == 4) {
+      bin.append(" ");
+    } else if (spacing_option == 8) {
       if (i % 2 == 0) {
         bin.append(" ");
       }
     }
-  } else {
   }
+
   return bin;
 }
 
 int bin_to_hex(uint32_t bin) { return 1; }
-
-string dec_to_bin(int dec) {
-  int bin = 0, i = 0, rem;
-  while (dec != 0) {
-    rem = dec % 2;
-    dec /= 10;
-    bin += rem * pow(2, i);
-    i++;
-  }
-  return "hello";
-}
 
 unsigned long long int bin_to_int(string bin) {
   return stoull(bin, nullptr, 2);
@@ -305,6 +232,16 @@ unsigned long long int hex_to_int(string hex) {
   return stoull(hex, nullptr, 16);
 }
 
-string decimialToBinaryString(unsigned long long int) { return "10"; }
+string dec_to_bin_with_spaces(unsigned long long int dec) {  
+  bitset<8> b(dec);
+  return b.to_string();
+}
 
-string decimialToHexadecimialString(unsigned long long int) { return "10"; }
+string dec_to_hex(unsigned long long int dec) {
+  stringstream stream;
+  // stream << setfill('0') << setw(sizeof(dec) * 2) << hex << dec;
+  stream << hex << dec;
+  return stream.str();
+}
+
+
