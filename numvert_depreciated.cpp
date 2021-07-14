@@ -1,3 +1,7 @@
+/*
+* old conversion functions
+*/
+
 #include <string>
 #include <math.h>
 
