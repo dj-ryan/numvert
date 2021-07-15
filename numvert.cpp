@@ -54,6 +54,8 @@ public:
   }
 
 private:
+
+
 };
 
 int main(int argc, char **argv) {
@@ -141,7 +143,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-// TODO break binary string up
+// TODO break binary string up 
 
 string hex_to_bin_with_space(string hex, int spacing_option) {
   string bin = "";
