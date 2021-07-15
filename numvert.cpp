@@ -12,51 +12,24 @@
 
 using namespace std;
 
-string hex_to_bin_with_space(string hex, int spacing_option);
-int bin_to_hex(uint32_t bin);
-void print_char_array_as_num(char arr[], int len);
-string dec_to_bin(int dec);
+/**
+ * TO HEX => %llx
+      Caps
+ * TO DEC => stoull
+ * TO BIN => individual implementation
+      Spaces
+      Full
+*/
 
-unsigned long long int bin_to_int(string bin);
-unsigned long long int hex_to_int(string hex);
+unsigned long long int hex_to_dec(string hex);     // stoull
+string hex_to_bin(string hex, int spacing_option); // While loop
 
-string dec_to_bin_with_spaces(unsigned long long int dec);
-string dec_to_hex(unsigned long long int dec);
+// string dec_to_hex(unsigned long long int dec); // %llx
+string dec_to_bin(unsigned long long int dec,
+                  string bin); // TODO implement dec_to_bin, recursive function
 
-class Numvert {
-
-public:
-  vector<string> hex;
-  vector<string> dec;
-  vector<string> bin;
-
-  bool printFullOutput;
-  bool printOctOutput;
-  bool outputToOct;
-  bool outputBinWithSpace;
-  bool errorNoFlags;
-
-  Numvert(vector<string> arguments) {
-    for (string arg : arguments) {
-      if (arg.at(0) == '-') {
-        if (arg.at(1) == 'b') {
-
-        } else if (arg.at(1) == 'd') {
-
-        } else if (arg.at(1) == 'o') {
-
-        } else if (arg.at(1) == 'h') {
-
-        } else {
-        }
-      }
-    }
-  }
-
-private:
-
-
-};
+// int bin_to_hex(uint32_t bin); // bin to dec with %llx
+unsigned long long int bin_to_dec(string bin); // stoull
 
 int main(int argc, char **argv) {
 
@@ -66,11 +39,12 @@ int main(int argc, char **argv) {
   args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
   args::ValueFlagList<string> hexadecimalInput(
-      parser, "Hexadecimal", "Hexadecimal input", {'h', "hex"});
+      parser, "Hexadecimal", "Hexadecimal input (do not apply 0x prefix)",
+      {'h', "hex"});
   args::ValueFlagList<unsigned long long int> decimalInput(
-      parser, "Decimal", "Decimial input", {'i', 'd', "dec"});
-  args::ValueFlagList<string> binaryInput(parser, "Binary", "Binary input",
-                                          {'b', "bin"});
+      parser, "Decimal", "Decimal input", {'i', 'd', "dec"});
+  args::ValueFlagList<string> binaryInput(
+      parser, "Binary", "Binary input (do not apply 0b prefix", {'b', "bin"});
 
   args::ValueFlag<string> octadeicmalInput(parser, "Octadecimal",
                                            "Octadecimal input", {'o', "oct"});
@@ -80,11 +54,15 @@ int main(int argc, char **argv) {
 
   args::ValueFlag<int> printBinSpace(
       parameters, "4 or 8",
-      "Prints spaces inbetween every forth binary bit or every byte",
+      "Prints spaces in between every forth binary bit or every byte",
       {'s'}); // TODO input validation
 
   args::Flag signedBinInput(parameters, "Signed Binary Input",
                             "Marks all binary input as signed values", {"sb"});
+
+  args::Flag printCapHex(parameters, "Print Hex with Cap",
+                         "Prints all hexadecimal output with capital letters",
+                         {"-H"});
 
   try {
     parser.ParseCLI(argc, argv);
@@ -107,13 +85,17 @@ int main(int argc, char **argv) {
 
       printf("[0x%s]\n\r", hex.c_str());
 
-      printf("\tHEX : 0x%s\n\r", hex.c_str());
-      printf("\tDEC : %llu\n\r", hex_to_int(hex));
+      if (printCapHex) {
+        printf("\tHEX : 0x%llX\n\r", hex_to_dec(hex));
+      } else {
+        printf("\tHEX : 0x%s\n\r", hex.c_str());
+      }
+      printf("\tDEC : %llu\n\r", hex_to_dec(hex));
       if (printBinSpace) {
         printf("\tBIN : %s\n\r",
-               hex_to_bin_with_space(hex, args::get(printBinSpace)).c_str());
+               hex_to_bin(hex, args::get(printBinSpace)).c_str());
       } else {
-        printf("\tBIN : %s\n\r", hex_to_bin_with_space(hex, 0).c_str());
+        printf("\tBIN : 0b%s\n\r", hex_to_bin(hex, 0).c_str());
       }
       printf("+------------------------------------------------+\n\r");
     }
@@ -122,9 +104,15 @@ int main(int argc, char **argv) {
     for (unsigned long long int dec : decimalInput) {
 
       printf("[%llu]\n\r", dec);
-      printf("\tHEX : %llx\n\r", dec);
+      if (printCapHex) {
+        printf("\tHEX : 0x%llX\n\r", dec);
+      } else {
+        printf("\tHEX : 0x%llx\n\r", dec);
+      }
+
       printf("\tDEC : %llu\n\r", dec);
-      printf("\tBIN : %s\n\r", dec_to_bin_with_spaces(dec).c_str());
+      string bin = "";
+      printf("\tBIN : 0b%s\n\r", dec_to_bin(dec, bin).c_str());
 
       printf("+------------------------------------------------+\n\r");
     }
@@ -133,9 +121,13 @@ int main(int argc, char **argv) {
     for (string bin : args::get(binaryInput)) {
 
       printf("[0b%s]\n\r", bin.c_str());
-      printf("\tHEX : %s\n\r", "hello");
-      printf("\tDEC : %llu\n\r", bin_to_int(bin));
-      printf("\tBIN : %s\n\r", bin.c_str());
+      if (printCapHex) {
+        printf("\tHEX : 0x%llX\n\r", bin_to_dec(bin));
+      } else {
+        printf("\tHEX : 0x%llx\n\r", bin_to_dec(bin));
+      }
+      printf("\tDEC : %llu\n\r", bin_to_dec(bin));
+      printf("\tBIN : 0b%s\n\r", bin.c_str());
 
       printf("+------------------------------------------------+\n\r");
     }
@@ -143,9 +135,9 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-// TODO break binary string up 
+// TODO break binary string up
 
-string hex_to_bin_with_space(string hex, int spacing_option) {
+string hex_to_bin(string hex, int spacing_option) {
   string bin = "";
   int i = 0;
   while (hex[i]) {
@@ -211,7 +203,7 @@ string hex_to_bin_with_space(string hex, int spacing_option) {
     }
 
     i++;
-    // append propper spacing
+
     if (spacing_option == 4) {
       bin.append(" ");
     } else if (spacing_option == 8) {
@@ -224,26 +216,18 @@ string hex_to_bin_with_space(string hex, int spacing_option) {
   return bin;
 }
 
-int bin_to_hex(uint32_t bin) { return 1; }
-
-unsigned long long int bin_to_int(string bin) {
-  return stoull(bin, nullptr, 2);
-}
-
-unsigned long long int hex_to_int(string hex) {
+unsigned long long int hex_to_dec(string hex) {
   return stoull(hex, nullptr, 16);
 }
 
-string dec_to_bin_with_spaces(unsigned long long int dec) {  
-  bitset<8> b(dec);
-  return b.to_string();
+string dec_to_bin(unsigned long long int dec, string bin) {
+  if (dec > 1) {
+    bin = dec_to_bin(dec / 2, bin);
+  }
+  bin.append(to_string(dec % 2));
+  return bin;
 }
 
-string dec_to_hex(unsigned long long int dec) {
-  stringstream stream;
-  // stream << setfill('0') << setw(sizeof(dec) * 2) << hex << dec;
-  stream << hex << dec;
-  return stream.str();
+unsigned long long int bin_to_dec(string bin) {
+  return stoull(bin, nullptr, 2);
 }
-
-

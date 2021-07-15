@@ -2,10 +2,10 @@
  * old conversion functions
  */
 
-#include <math.h>
-#include <string>
+// #include <math.h>
+// #include <string>
 
-using namespace std;
+// using namespace std;
 
 /*
 printf strings:
@@ -16,7 +16,7 @@ printf("| ERROR: invalid tag '%s'\n\r", argv[i]);
 printf("| -> 0b%s", argv[i+1]);
 
 
-*/
+
 
 unsigned long long int hex2dec(string hex) {
   long long int dec = 0;
@@ -56,13 +56,13 @@ unsigned long long int bin2dec(string bin) {
 }
 
 void hexToDec() {
-  // hex conversion using std::hex
-  // std::cout << "HEX: " << args::get(hexadecimal) << std::endl;
-  //   long long int decOutput;
-  //   std::stringstream ss;
-  //   ss << args::get(hexadecimal);
-  //   ss >> std::hex >> decOutput;
-  //   std::cout << "DEC: " << decOutput << std::endl;
+  hex conversion using std::hex
+  std::cout << "HEX: " << args::get(hexadecimal) << std::endl;
+    long long int decOutput;
+    std::stringstream ss;
+    ss << args::get(hexadecimal);
+    ss >> std::hex >> decOutput;
+    std::cout << "DEC: " << decOutput << std::endl;
 }
 
 string dec_to_bin(int dec) {
@@ -75,3 +75,28 @@ string dec_to_bin(int dec) {
   }
   return "hello";
 }
+
+string dec_to_hex(unsigned long long int dec) {
+  stringstream stream;
+  // stream << setfill('0') << setw(sizeof(dec) * 2) << hex << dec;
+  stream << hex << dec;
+  return stream.str();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
