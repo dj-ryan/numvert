@@ -30,6 +30,7 @@ string dec_to_bin(unsigned long long int dec,
 
 // int bin_to_hex(uint32_t bin); // bin to dec with %llx
 unsigned long long int bin_to_dec(string bin); // stoull
+string bin_insert_space(string bin, int spacing_option);
 
 int main(int argc, char **argv) {
 
@@ -54,15 +55,14 @@ int main(int argc, char **argv) {
 
   args::ValueFlag<int> printBinSpace(
       parameters, "4 or 8",
-      "Prints spaces in between every forth binary bit or every byte",
-      {'s'}); // TODO input validation
+      "Prints spaces in between every forth binary bit or every byte", {"bs"});
 
-  args::Flag signedBinInput(parameters, "Signed Binary Input",
-                            "Marks all binary input as signed values", {"sb"});
+  // args::Flag signedBinInput(parameters, "Signed Binary Input", "Marks all
+  // binary input as signed values", {"sb"});
 
   args::Flag printCapHex(parameters, "Print Hex with Cap",
                          "Prints all hexadecimal output with capital letters",
-                         {"-H"});
+                         {'H'});
 
   try {
     parser.ParseCLI(argc, argv);
@@ -98,6 +98,16 @@ int main(int argc, char **argv) {
         printf("\tBIN : 0b%s\n\r", hex_to_bin(hex, 0).c_str());
       }
       printf("+------------------------------------------------+\n\r");
+      if (printFull) {
+        printf("BIN : ");
+        
+        
+        
+        
+        
+        
+        printf("+------------------------------------------------+\n\r");
+      }
     }
   }
   if (decimalInput) {
@@ -109,10 +119,17 @@ int main(int argc, char **argv) {
       } else {
         printf("\tHEX : 0x%llx\n\r", dec);
       }
+      string bin = dec_to_bin(dec, "").c_str();
 
       printf("\tDEC : %llu\n\r", dec);
-      string bin = "";
-      printf("\tBIN : 0b%s\n\r", dec_to_bin(dec, bin).c_str());
+
+      if (printBinSpace) {
+        printf("\tBIN : 0b%s\n\r", bin_insert_space(dec_to_bin(dec, "").c_str(),
+                                                    args::get(printBinSpace))
+                                       .c_str());
+      } else {
+        printf("\tBIN : 0b%s\n\r", dec_to_bin(dec, "").c_str());
+      }
 
       printf("+------------------------------------------------+\n\r");
     }
@@ -131,6 +148,8 @@ int main(int argc, char **argv) {
 
       printf("+------------------------------------------------+\n\r");
     }
+
+
   }
   return 0;
 }
@@ -225,6 +244,19 @@ string dec_to_bin(unsigned long long int dec, string bin) {
     bin = dec_to_bin(dec / 2, bin);
   }
   bin.append(to_string(dec % 2));
+  return bin;
+}
+
+string bin_insert_space(string bin, int spacing_option) {
+  int spacer = 0;
+  for (int i = bin.length(); i > 0; i--) {
+    if (spacing_option == 4 && (spacer % 4) == 0) {
+      bin.insert(i, " ");
+    } else if (spacing_option == 8 && (spacer % 8) == 0) {
+      bin.insert(i, " ");
+    }
+    spacer++;
+  }
   return bin;
 }
 
