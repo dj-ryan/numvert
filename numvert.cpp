@@ -50,8 +50,8 @@ int main(int argc, char **argv)
   args::ValueFlagList<string> binaryInput(
       parser, "Binary", "Binary input (do not apply 0b prefix", {'b', "bin"});
 
-  // args::ValueFlag<string> octadeicmalInput(parser, "Octadecimal",
-  //                                          "Octadecimal input", {'o', "oct"}); // TODO: write octa converters
+  // args::ValueFlag<string> octalDeicmalInput(parser, "Octal Decimal",
+  //                                          "Octal Decimal input", {'o', "oct"}); // TODO: write Octal Decimal converters
 
   args::Flag printFull(parameters, "Print Full", "Prints advanced output",
                        {'f', "full"});
