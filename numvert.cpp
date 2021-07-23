@@ -366,9 +366,10 @@ string dec_to_bin_set_spacing(unsigned long long int dec)
 
 
 
-  /************************
-  * DEPRECATED FUNCTIONS
-  *************************/
+/************************
+* DEPRECATED FUNCTIONS
+* (these get optimized out during compilation)
+*************************/
 
 unsigned long long int hex2dec(string hex) {
   long long int dec = 0;
