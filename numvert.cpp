@@ -19,10 +19,15 @@ using namespace std;
  * TO BIN => individual implementation
       Spaces
       Full
+
+
+  Full BIN
+  Hex and nibble matching
+
 */
 
 unsigned long long int hex_to_dec(string hex);     // stoull
-string hex_to_bin(string hex, int spacing_option); // While loop
+string hex_to_bin(string hex); // While loop
 
 // string dec_to_hex(unsigned long long int dec); // %llx
 string dec_to_bin(unsigned long long int dec,
@@ -92,6 +97,10 @@ int main(int argc, char **argv)
   }
 
   printf("+------------------------------------------------+\n\r");
+
+  /************************
+  * HEXADECIMAL INPUT
+  *************************/
   if (hexadecimalInput)
   {
     for (string hex : args::get(hexadecimalInput))
@@ -112,15 +121,19 @@ int main(int argc, char **argv)
       if (printBinSpace)
       {
         printf("\tBIN : 0b%s\n\r",
-               hex_to_bin(hex, args::get(printBinSpace)).c_str());
+               bin_insert_space(hex_to_bin(hex), args::get(printBinSpace)).c_str());
       }
       else
       {
-        printf("\tBIN : 0b%s\n\r", hex_to_bin(hex, 0).c_str());
+        printf("\tBIN : 0b%s\n\r", hex_to_bin(hex).c_str());
       }
       printf("+------------------------------------------------+\n\r");
     }
   }
+
+  /************************
+  * DECIMAL INPUT
+  *************************/
   if (decimalInput)
   {
     for (unsigned long long int dec : decimalInput)
@@ -164,6 +177,10 @@ int main(int argc, char **argv)
       printf("+------------------------------------------------+\n\r");
     }
   }
+
+  /************************
+  * BINARY INPUT
+  *************************/
   if (binaryInput)
   {
     for (string bin : args::get(binaryInput))
@@ -187,7 +204,7 @@ int main(int argc, char **argv)
   return 0;
 }
 
-string hex_to_bin(string hex, int spacing_option)
+string hex_to_bin(string hex)
 {
   string bin = "";
   int i = 0;
@@ -254,20 +271,7 @@ string hex_to_bin(string hex, int spacing_option)
       returnError = returnError + hex[i] + '\'';
       return returnError;
     }
-
     i++;
-
-    if (spacing_option == 4)
-    {
-      bin.append(" ");
-    }
-    else if (spacing_option == 8)
-    {
-      if (i % 2 == 0)
-      {
-        bin.append(" ");
-      }
-    }
   }
 
   return bin;
