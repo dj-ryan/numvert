@@ -53,7 +53,7 @@ int main(int argc, char **argv)
   args::ValueFlagList<unsigned long long int> decimalInput(
       parser, "Decimal", "Decimal input", {'i', 'd', "dec"});
   args::ValueFlagList<string> binaryInput(
-      parser, "Binary", "Binary input (do not apply 0b prefix", {'b', "bin"});
+      parser, "Binary", "Binary input (do not apply 0b prefix)", {'b', "bin"});
 
   // args::ValueFlag<string> octalDeicmalInput(parser, "Octal Decimal",
   //                                          "Octal Decimal input", {'o', "oct"}); // TODO: write Octal Decimal converters
