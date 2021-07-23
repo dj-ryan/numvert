@@ -9,11 +9,10 @@ CFLAGS  = -Wall
 TARGET = numvert
 
 all: $(TARGET)
-	$(CC) $(CFLAGS) -o $(TARGET).out $(TARGET).cpp
+	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).cpp
 
 debug: $(TARGET)
-	$(CC) $(CFLAGS) -g -o $(TARGET).out $(TARGET).cpp
+	$(CC) $(CFLAGS) -g -o $(TARGET) $(TARGET).cpp
 
 clean:
 	$(RM) $(TARGET)
-	$(RM) $(TARGET).out
