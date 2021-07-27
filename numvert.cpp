@@ -26,8 +26,10 @@ using namespace std;
 
 */
 
-unsigned long long int hex_to_dec(string hex);     // stoull
-string hex_to_bin(string hex); // While loop
+const string version = "v1.0.1";
+
+unsigned long long int hex_to_dec(string hex); // stoull
+string hex_to_bin(string hex);                 // While loop
 
 // string dec_to_hex(unsigned long long int dec); // %llx
 string dec_to_bin(unsigned long long int dec,
@@ -42,37 +44,52 @@ string dec_to_bin_set_spacing(unsigned long long int dec);
 int main(int argc, char **argv)
 {
 
-  args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ALL TO HIM");
-  args::Group parameters(
+  args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ ALL TO HIM");
+
+  args::Group inputGroup(parser, "Input types:", args::Group::Validators::AtLeastOne); //TODO: add group validation for input peramaters
+
+  args::Group outputFormatingGroup(
       parser, "Output formating options:", args::Group::Validators::DontCare);
+
+  args::Group otherOptionsGroup(parser, "Other options:", args::Group::Validators::DontCare);
+
   args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
-  args::ValueFlagList<string> hexadecimalInput(
-      parser, "Hexadecimal", "Hexadecimal input (do not apply 0x prefix)",
+  args::ValueFlagList<string> hexadecimalInputFlg(
+      inputGroup, "Hexadecimal", "Hexadecimal input (do not apply 0x prefix)",
       {'h', "hex"});
-  args::ValueFlagList<unsigned long long int> decimalInput(
-      parser, "Decimal", "Decimal input", {'i', 'd', "dec"});
-  args::ValueFlagList<string> binaryInput(
-      parser, "Binary", "Binary input (do not apply 0b prefix)", {'b', "bin"});
+  args::ValueFlagList<unsigned long long int> decimalInputFlg(
+      inputGroup, "Decimal", "Decimal input", {'d', "dec", 'i', "int"});
+  args::ValueFlagList<string> binaryInputFlg(
+      inputGroup, "Binary", "Binary input (do not apply 0b prefix)", {'b', "bin"});
 
   // args::ValueFlag<string> octalDeicmalInput(parser, "Octal Decimal",
   //                                          "Octal Decimal input", {'o', "oct"}); // TODO: write Octal Decimal converters
 
-  args::Flag printFull(parameters, "Print Full", "Prints advanced output",
-                       {'f', "full"});
+  
+  /* Output Formating Group */
+  args::Flag printFullFlg(outputFormatingGroup, "Print Full", "Prints advanced output",
+                          {'f', "full"});
 
-  args::ValueFlag<int> printBinSpace(
-      parameters, "4 or 8",
+  args::ValueFlag<int> printBinSpaceFlg(
+      outputFormatingGroup, "4 or 8",
       "Prints spaces in between every forth binary bit or every byte", {'s', "binary-spacing"});
 
-  args::Flag truncateBin(parameters, "Truncate Binary", "Truncates binary output to least significant '1'", {"tb", "truncate-binary"});
 
-  // args::Flag signedBinInput(parameters, "Signed Binary Input", "Marks all
+  args::Flag truncateBinFlg(outputFormatingGroup, "Truncate Binary", "Truncates binary output to least significant '1'", {"tb", "truncate-binary"});
+
+
+  args::Flag printCapHexFlg(outputFormatingGroup, "Print Hex with Cap",
+                            "Prints all hexadecimal output with capital letters",
+                            {'H', "cap-hex"});
+
+
+  /* Other options */
+
+  args::Flag versionFlg(otherOptionsGroup, "Version", "Prints version information", {"version"});
+  
+  // args::Flag signedBinInput(otherOptionsGroup, "Signed Binary Input", "Marks all
   // binary input as signed values", {"sb"}); // TODO: signed binary math
-
-  args::Flag printCapHex(parameters, "Print Hex with Cap",
-                         "Prints all hexadecimal output with capital letters",
-                         {'H', "cap-hex"});
 
   try
   {
@@ -96,19 +113,19 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  printf("+------------------------------------------------+\n\r");
+  printf("+---------------------------------------numvert--+\n\r");
 
   /************************
   * HEXADECIMAL INPUT
   *************************/
-  if (hexadecimalInput)
+  if (hexadecimalInputFlg)
   {
-    for (string hex : args::get(hexadecimalInput))
+    for (string hex : args::get(hexadecimalInputFlg))
     {
 
       printf("[0x%s]\n\r", hex.c_str());
 
-      if (printCapHex)
+      if (printCapHexFlg)
       {
         printf("\tHEX : 0x%llX\n\r", hex_to_dec(hex));
       }
@@ -118,10 +135,10 @@ int main(int argc, char **argv)
       }
       printf("\tDEC : %llu\n\r", hex_to_dec(hex));
 
-      if (printBinSpace)
+      if (printBinSpaceFlg)
       {
         printf("\tBIN : 0b%s\n\r",
-               bin_insert_space(hex_to_bin(hex), args::get(printBinSpace)).c_str());
+               bin_insert_space(hex_to_bin(hex), args::get(printBinSpaceFlg)).c_str());
       }
       else
       {
@@ -134,13 +151,13 @@ int main(int argc, char **argv)
   /************************
   * DECIMAL INPUT
   *************************/
-  if (decimalInput)
+  if (decimalInputFlg)
   {
-    for (unsigned long long int dec : decimalInput)
+    for (unsigned long long int dec : decimalInputFlg)
     {
 
       printf("[%llu]\n\r", dec);
-      if (printCapHex)
+      if (printCapHexFlg)
       {
         printf("\tHEX : 0x%llX\n\r", dec);
       }
@@ -154,7 +171,7 @@ int main(int argc, char **argv)
 
       string bin;
 
-      if (truncateBin) // truncating bin option
+      if (truncateBinFlg) // truncating bin option
       {
         bin = dec_to_bin(dec, "");
       }
@@ -163,10 +180,10 @@ int main(int argc, char **argv)
         bin = dec_to_bin_set_spacing(dec);
       }
 
-      if (printBinSpace) // bin spacing option
+      if (printBinSpaceFlg) // bin spacing option
       {
         printf("\tBIN : 0b%s\n\r", bin_insert_space(bin,
-                                                    args::get(printBinSpace))
+                                                    args::get(printBinSpaceFlg))
                                        .c_str());
       }
       else
@@ -181,13 +198,13 @@ int main(int argc, char **argv)
   /************************
   * BINARY INPUT
   *************************/
-  if (binaryInput)
+  if (binaryInputFlg)
   {
-    for (string bin : args::get(binaryInput))
+    for (string bin : args::get(binaryInputFlg))
     {
 
       printf("[0b%s]\n\r", bin.c_str());
-      if (printCapHex)
+      if (printCapHexFlg)
       {
         printf("\tHEX : 0x%llX\n\r", bin_to_dec(bin));
       }
@@ -201,8 +218,24 @@ int main(int argc, char **argv)
       printf("+------------------------------------------------+\n\r");
     }
   }
+
+  if (versionFlg)
+  {
+    printf("version: %s\n\r", version.c_str());
+    printf("+------------------------------------------------+\n\r");
+  }
+
+  if (argc <= 1)
+  {
+    std::cout << parser;
+  }
+
   return 0;
 }
+
+/************************
+  * Function Deffinitions
+  *************************/
 
 string hex_to_bin(string hex)
 {
@@ -364,28 +397,35 @@ string dec_to_bin_set_spacing(unsigned long long int dec)
 
 // TODO: dec and hex to binary with set length
 
-
-
 /************************
 * DEPRECATED FUNCTIONS
 * (these get optimized out during compilation)
 *************************/
 
-unsigned long long int hex2dec(string hex) {
+unsigned long long int hex2dec(string hex)
+{
   long long int dec = 0;
   int pos = 1;
   int i = 0;
-  while (hex[i]) {
-    if (hex[i] >= '0' && hex[i] <= '9') {
+  while (hex[i])
+  {
+    if (hex[i] >= '0' && hex[i] <= '9')
+    {
       dec += (hex[i] - 48) * pos;
       pos *= 16;
-    } else if (hex[i] >= 'a' && hex[i] <= 'f') {
+    }
+    else if (hex[i] >= 'a' && hex[i] <= 'f')
+    {
       dec += (hex[i] - 87) * pos;
       pos *= 16;
-    } else if (hex[i] >= 'A' && hex[i] <= 'F') {
+    }
+    else if (hex[i] >= 'A' && hex[i] <= 'F')
+    {
       dec += (hex[i] - 55) * pos;
       pos *= 16;
-    } else {
+    }
+    else
+    {
       return 0;
     }
     i++;
@@ -393,14 +433,16 @@ unsigned long long int hex2dec(string hex) {
   return dec;
 }
 
-unsigned long long int bin2dec(string bin) {
+unsigned long long int bin2dec(string bin)
+{
 
   return stoull(bin, nullptr, 2);
 
   unsigned long long int dec = 0;
   int pos = 0;
   int i = bin.length() - 1;
-  while (i >= 0) {
+  while (i >= 0)
+  {
     dec = dec + (bin[i] - 48) * (pow(2, pos));
     pos++;
     i--;
@@ -408,9 +450,11 @@ unsigned long long int bin2dec(string bin) {
   return dec;
 }
 
-string dec_to_bin_hard_value(int dec) {
+string dec_to_bin_hard_value(int dec)
+{
   int bin = 0, i = 0, rem;
-  while (dec != 0) {
+  while (dec != 0)
+  {
     rem = dec % 2;
     dec /= 10;
     bin += rem * pow(2, i);
@@ -419,10 +463,10 @@ string dec_to_bin_hard_value(int dec) {
   return "hello";
 }
 
-string dec_to_hex_hard_value(unsigned long long int dec) {
+string dec_to_hex_hard_value(unsigned long long int dec)
+{
   stringstream stream;
   // stream << setfill('0') << setw(sizeof(dec) * 2) << hex << dec;
   stream << hex << dec;
   return stream.str();
 }
-
