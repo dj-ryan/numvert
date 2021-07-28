@@ -1,4 +1,4 @@
-#include "args.hxx"
+
 #include <bitset>
 #include <cstdint>
 #include <cstdio>
@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+
+#include "args.hxx"
+#include "format.hpp"
 
 using namespace std;
 
