@@ -17,19 +17,19 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-		OUTPUT = -o $(BINPATH)/$(TARGET).out
+		OUTPUT = -o ./$(BINPATH)/$(TARGET).out
     endif
     ifeq ($(UNAME_S),Darwin)
-        OUTPUT = -o $(BINPATH)/$(TARGET).out
+        OUTPUT = -o ./$(BINPATH)/$(TARGET).out
     endif
 endif
 
 # build target executable:
-all: $(TARGET)
-	$(CC) /$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(CFLAGS)
+all: ./$(SRCPATH)/$(TARGET).cpp
+	$(CC) ./$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(CFLAGS)
 
-debug: $(TARGET)
-	$(CC) /$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(DEBUGFLAGS)
+debug: ./$(SRCPATH)/$(TARGET).cpp
+	$(CC) ./$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(DEBUGFLAGS)
 
 clean:
 	$(RM) $(TARGET).exe
