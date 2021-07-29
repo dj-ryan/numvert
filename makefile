@@ -4,8 +4,12 @@ CC = g++
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
 CFLAGS  = -Wall -std=c++11
+DEBUGFLAGS = -Wall -std=c++11 -g
 TARGET = numvert
 OUTPUT = 
+SRCPATH = src
+BINPATH = bin
+
 
 # detect operationg system
 ifeq ($(OS),Windows_NT)
@@ -13,19 +17,19 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-		OUTPUT = -o $(TARGET).out
+		OUTPUT = -o $(BINPATH)/$(TARGET).out
     endif
     ifeq ($(UNAME_S),Darwin)
-        OUTPUT = -o $(TARGET).out
+        OUTPUT = -o $(BINPATH)/$(TARGET).out
     endif
 endif
 
 # build target executable:
 all: $(TARGET)
-	$(CC) $(TARGET).cpp $(OUTPUT) $(CFLAGS)
+	$(CC) /$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(CFLAGS)
 
 debug: $(TARGET)
-	$(CC) $(TARGET).cpp $(OUTPUT) -g 
+	$(CC) /$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(DEBUGFLAGS)
 
 clean:
 	$(RM) $(TARGET).exe
