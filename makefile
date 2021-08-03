@@ -7,9 +7,10 @@ CFLAGS  = -Wall -std=c++11
 DEBUGFLAGS = -Wall -std=c++11 -g
 TARGET = numvert
 OUTPUT = 
+
+INCLUDE = -I ./include/
 SRCPATH = src
 BINPATH = bin
-
 
 # detect operationg system
 ifeq ($(OS),Windows_NT)
@@ -25,11 +26,13 @@ else
 endif
 
 # build target executable:
+
 all: ./$(SRCPATH)/$(TARGET).cpp
 	$(CC) ./$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(CFLAGS)
 
 debug: ./$(SRCPATH)/$(TARGET).cpp
 	$(CC) ./$(SRCPATH)/$(TARGET).cpp $(OUTPUT) $(DEBUGFLAGS)
+
 
 clean:
 	$(RM) $(TARGET).exe

@@ -1,14 +1,17 @@
-#include "args.hxx"
+// #include <cstdint>
+// #include <cstdio>
+// #include <cstring>
+// #include <iomanip>
+// #include <iostream>
+// #include <stdio.h>
+// #include <string>
+// #include <vector>
+
 #include <bitset>
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <iomanip>
-#include <iostream>
 #include <math.h>
-#include <stdio.h>
-#include <string>
-#include <vector>
+#include "args.hxx"
+#include "format.hpp"
+
 
 using namespace std;
 
