@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
   args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
   args::ValueFlagList<std::string> hexadecimalInputFlg(
-      inputGroup, "Hexadecimal", "Hexadecimal input (do not apply 0x prefix)",
+      inputGroup, "Hexadecimal",
+      "Hexadecimal input, case insensitive (do not apply 0x prefix)",
       {'h', "hex"});
   args::ValueFlagList<unsigned long long int> decimalInputFlg(
       inputGroup, "Decimal", "Decimal input", {'d', "dec", 'i', "int"});
@@ -128,8 +129,8 @@ int main(int argc, char **argv) {
 
       if (printCapHexFlg) {
         std::cout << boost::format("\tHEX : %1%") %
-                         boost::io::group(std::hex, std::showbase,
-                                          std::uppercase, hex_to_dec(hex))
+                         boost::io::group(std::hex, std::uppercase,
+                                          std::showbase, hex_to_dec(hex))
                   << std::endl;
         // printf("\tHEX : 0x%llX\n\r", hex_to_dec(hex));
       } else {
@@ -173,15 +174,23 @@ int main(int argc, char **argv) {
   if (decimalInputFlg) {
     for (unsigned long long int dec : decimalInputFlg) {
 
-      printf("[%llu]\n\r", dec);
+      std::cout << boost::format("[%1%]") % dec << std::endl;
+      // printf("[%llu]\n\r", dec);
       if (printCapHexFlg) {
-        printf("\tHEX : 0x%llX\n\r", dec);
+        std::cout << boost::format("\tHEX : %1%") %
+                         boost::io::group(std::hex, std::showbase,
+                                          std::uppercase, dec)
+                  << std::endl;
+        // printf("\tHEX : 0x%llX\n\r", dec);
       } else {
-        printf("\tHEX : 0x%llx\n\r", dec);
+        std::cout << boost::format("\tHEX : %1%") %
+                         boost::io::group(std::hex, std::showbase, dec)
+                  << std::endl;
+        // printf("\tHEX : 0x%llx\n\r", dec);
       }
-      // string bin = dec_to_bin(dec, "").c_str();
 
-      printf("\tDEC : %llu\n\r", dec);
+      std::cout << boost::format("\tDEC : %1%") % dec << std::endl;
+      // printf("\tDEC : %llu\n\r", dec);
 
       std::string bin;
 
@@ -194,13 +203,18 @@ int main(int argc, char **argv) {
 
       if (printBinSpaceFlg) // bin spacing option
       {
-        printf("\tBIN : 0b%s\n\r",
-               bin_insert_space(bin, args::get(printBinSpaceFlg)).c_str());
+        std::cout << boost::format("\tBIN : 0b%1%") %
+                         bin_insert_space(bin, args::get(printBinSpaceFlg))
+                  << std::endl;
+        // printf("\tBIN : 0b%s\n\r",
+        //        bin_insert_space(bin, args::get(printBinSpaceFlg)).c_str());
       } else {
-        printf("\tBIN : 0b%s\n\r", bin.c_str());
+        std::cout << boost::format("\tBIN : 0b%1%") % bin << std::endl;
+        // printf("\tBIN : 0b%s\n\r", bin.c_str());
       }
 
-      printf("+------------------------------------------------+\n\r");
+      std::cout << boost::format(
+          "+------------------------------------------------+");
     }
   }
 
@@ -210,22 +224,37 @@ int main(int argc, char **argv) {
   if (binaryInputFlg) {
     for (std::string bin : args::get(binaryInputFlg)) {
 
-      printf("[0b%s]\n\r", bin.c_str());
+      std::cout << boost::format("[0b%1%]") % bin << std::endl;
+      // printf("[0b%s]\n\r", bin.c_str());
       if (printCapHexFlg) {
-        printf("\tHEX : 0x%llX\n\r", bin_to_dec(bin));
+        std::cout << boost::format("\tHEX : %1$X") % bin_to_dec(bin)
+                  << std::endl;
+        // printf("\tHEX : 0x%llX\n\r", bin_to_dec(bin));
       } else {
-        printf("\tHEX : 0x%llx\n\r", bin_to_dec(bin));
+        std::cout << boost::format("\tHEX : %1%") %
+                         boost::io::group(std::hex, std::showbase,
+                                          bin_to_dec(bin))
+                  << std::endl;
+        // printf("\tHEX : 0x%llx\n\r", bin_to_dec(bin));
       }
-      printf("\tDEC : %llu\n\r", bin_to_dec(bin));
-      printf("\tBIN : 0b%s\n\r", bin.c_str());
 
-      printf("+------------------------------------------------+\n\r");
+      std::cout << boost::format("\tDEC : %1%") % bin_to_dec(bin) << std::endl;
+      // printf("\tDEC : %llu\n\r", bin_to_dec(bin));
+      std::cout << boost::format("\tBIN : 0b%1%") % bin << std::endl;
+      // printf("\tBIN : 0b%s\n\r", bin.c_str());
+
+      std::cout << boost::format(
+                       "+------------------------------------------------+")
+                << std::endl;
     }
   }
 
   if (versionFlg) {
-    printf("version: %s\n\r", version.c_str());
-    printf("+------------------------------------------------+\n\r");
+    std::cout << boost::format("version: %1%") % version << std::endl;
+    // printf("version: %s\n\r", version.c_str());
+    std::cout << boost::format(
+                     "+------------------------------------------------+")
+              << std::endl;
   }
 
   if (argc <= 1) {
@@ -234,10 +263,6 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-
-/************************
- * Function Deffinitions
- *************************/
 
 std::string hex_to_bin(std::string hex) {
   std::string bin = "";
@@ -306,7 +331,6 @@ std::string hex_to_bin(std::string hex) {
     }
     i++;
   }
-
   return bin;
 }
 
