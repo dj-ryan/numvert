@@ -6,6 +6,7 @@ CC = g++
 CFLAGS  = -Wall -std=c++11
 TARGET = numvert
 OUTPUT = 
+INCLUDE = -I ./include/
 
 # detect operationg system
 ifeq ($(OS),Windows_NT)
@@ -22,10 +23,10 @@ endif
 
 # build target executable:
 all: $(TARGET)
-	$(CC) $(TARGET).cpp $(OUTPUT) $(CFLAGS)
+	$(CC) $(OUTPUT) $(CFLAGS) $(INCLUDE) ./src/$(TARGET).cpp
 
 debug: $(TARGET)
-	$(CC) $(TARGET).cpp $(OUTPUT) -g 
+	$(CC) $(OUTPUT) -g $(INCLUDE) ./src/$(TARGET).cpp
 
 clean:
 	$(RM) $(TARGET).exe
