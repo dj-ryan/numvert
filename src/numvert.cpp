@@ -1,5 +1,3 @@
-
-
 // #include <cstdint>
 // #include <cstdio>
 // #include <cstring>
@@ -13,6 +11,7 @@
 #include <math.h>
 #include "args.hxx"
 #include "format.hpp"
+
 
 using namespace std;
 
