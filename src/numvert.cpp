@@ -3,7 +3,6 @@
 // #include <cstring>
 // #include <iomanip>
 // #include <iostream>
-
 // #include <string>
 // #include <vector>
 
@@ -21,12 +20,12 @@
 
 const std::string version = "v1.0.1";
 
-unsigned long long int hex_to_dec(std::string hex); // stoull
-std::string hex_to_bin(std::string hex);            // While loop
+unsigned long long int hex_to_dec(std::string hex);
+std::string hex_to_bin(std::string hex);
 
 std::string dec_to_bin(unsigned long long int dec, std::string bin);
 
-unsigned long long int bin_to_dec(std::string bin); // stoull
+unsigned long long int bin_to_dec(std::string bin);
 std::string bin_insert_space(std::string bin, int spacing_option);
 
 std::string dec_to_bin_set_spacing(unsigned long long int dec);
@@ -35,10 +34,8 @@ int main(int argc, char **argv) {
 
   args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ ALL TO HIM");
 
-  args::Group inputGroup(
-      parser, "Input types:",
-      args::Group::Validators::AtLeastOne); // TODO: add group validation for
-                                            // input peramaters
+  args::Group inputGroup(parser,
+                         "Input types:", args::Group::Validators::AtLeastOne);
 
   args::Group outputFormatingGroup(
       parser, "Output formating options:", args::Group::Validators::DontCare);
@@ -58,10 +55,8 @@ int main(int argc, char **argv) {
       inputGroup, "Binary", "Binary input (do not apply 0b prefix)",
       {'b', "bin"});
 
-  // args::ValueFlag<string> octalDeicmalInput(parser, "Octal Decimal",
-  //                                          "Octal Decimal input", {'o',
-  //                                          "oct"}); // TODO: write Octal
-  //                                          Decimal converters
+  // args::ValueFlag<std::string> octalDeicmalInput(
+  //     parser, "Octal Decimal", "Octal Decimal input", {'o', "oct"});
 
   /* Output Formating Group */
   args::Flag printFullFlg(outputFormatingGroup, "Print Full",
@@ -103,16 +98,6 @@ int main(int argc, char **argv) {
     std::cerr << parser;
     return 1;
   }
-
-  // testing
-  // unsigned long long int temp = 3245782638762346785;
-  // std::cout << boost::format("%x %d") % temp % 77 << std::endl;
-  // // long version
-  // std::cout << boost::format("%1%") %
-  //                  boost::io::group(std::hex, std::showbase, 40)
-  //           << std::endl;
-  // // shorthand
-  // std::cout << boost::format("%1$#x") % 40 << std::endl;
 
   std::cout << boost::format(
                    "+---------------------------------------numvert--+")
@@ -257,18 +242,14 @@ int main(int argc, char **argv) {
               << std::endl;
   }
 
-  if (argc <= 1) {
-    std::cout << parser;
-  }
-
   return 0;
 }
 
 std::string hex_to_bin(std::string hex) {
   std::string bin = "";
   int i = 0;
-  while (hex[i]) {
-    switch (hex[i]) {
+  while (hex.at(i)) {
+    switch (hex.at(i)) {
     case '0':
       bin.append("0000");
       break;
@@ -395,62 +376,3 @@ std::string dec_to_bin_set_spacing(unsigned long long int dec) {
 }
 
 // TODO: dec and hex to binary with set length
-
-/************************
- * DEPRECATED FUNCTIONS
- * (these get optimized out during compilation)
- *************************/
-
-unsigned long long int hex2dec(std::string hex) {
-  long long int dec = 0;
-  int pos = 1;
-  int i = 0;
-  while (hex[i]) {
-    if (hex[i] >= '0' && hex[i] <= '9') {
-      dec += (hex[i] - 48) * pos;
-      pos *= 16;
-    } else if (hex[i] >= 'a' && hex[i] <= 'f') {
-      dec += (hex[i] - 87) * pos;
-      pos *= 16;
-    } else if (hex[i] >= 'A' && hex[i] <= 'F') {
-      dec += (hex[i] - 55) * pos;
-      pos *= 16;
-    } else {
-      return 0;
-    }
-    i++;
-  }
-  return dec;
-}
-
-unsigned long long int bin2dec(std::string bin) {
-
-  return stoull(bin, nullptr, 2);
-
-  unsigned long long int dec = 0;
-  int pos = 0;
-  int i = bin.length() - 1;
-  while (i >= 0) {
-    dec = dec + (bin[i] - 48) * (pow(2, pos));
-    pos++;
-    i--;
-  }
-  return dec;
-}
-
-std::string dec_to_bin_hard_value(int dec) {
-  int bin = 0, i = 0, rem;
-  while (dec != 0) {
-    rem = dec % 2;
-    dec /= 10;
-    bin += rem * pow(2, i);
-    i++;
-  }
-  return "hello";
-}
-
-std::string dec_to_hex_hard_value(unsigned long long int dec) {
-  std::stringstream stream;
-  stream << std::hex << dec;
-  return stream.str();
-}
