@@ -1,14 +1,14 @@
-# numvert
+![Imgur](https://imgur.com/Ye2hUWS.png)
 #### A cli program to convert numbers between bases
 
 ## Installation
 
 - Clone and go to the root directory
-- make using the make file or compile using:
+- Build using the make file or compile using:
   - g++ src/numvert.cpp -o numvert -Wall -std=c++11 -Iinclude
-- Move to path
+- Install
   - Windows
-    - Copy binary to system folder such as 'Program files'
+    - Copy binary to system folder such as 'Program Files'
     - Add path to PATH variable
   - Linux
     - Copy binary into bin folder
