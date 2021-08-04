@@ -1,7 +1,11 @@
 ![Imgur](https://imgur.com/Ye2hUWS.png)
-#### A cli program to convert numbers between bases
 
-## Installation
+
+# Description
+
+### A cli program to convert numbers between bases
+
+# Installation
 
 - Clone and go to the root directory
 - Build using the make file or compile using:
@@ -14,7 +18,7 @@
     - Copy binary into bin folder
 
 
-## Usage
+# Usage
 ```
   numvert {OPTIONS}
 
@@ -47,7 +51,7 @@
     ~ ALL TO HIM
 ```
 
-## Road Map
+# Road Map
   - Binary Parsing
     - Hex and nibble matching
     - copy output to clipboard
