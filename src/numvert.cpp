@@ -9,9 +9,11 @@
 #include <bitset>
 #include <boost/format/format_fwd.hpp>
 #include <boost/format/group.hpp>
+#include <exception>
 #include <ios>
 #include <math.h>
 #include <ostream>
+#include <stdexcept>
 #include <stdio.h>
 
 // local libs
@@ -86,14 +88,14 @@ int main(int argc, char **argv) {
 
   try {
     parser.ParseCLI(argc, argv);
-  } catch (args::Help) {
+  } catch (const args::Help &e) {
     std::cout << parser;
     return 0;
-  } catch (args::ParseError e) {
+  } catch (args::ParseError &e) {
     std::cerr << e.what() << std::endl;
     std::cerr << parser;
     return 1;
-  } catch (args::ValidationError e) {
+  } catch (args::ValidationError &e) {
     std::cerr << e.what() << std::endl;
     std::cerr << parser;
     return 1;
@@ -109,16 +111,27 @@ int main(int argc, char **argv) {
   if (hexadecimalInputFlg) {
     for (std::string hex : args::get(hexadecimalInputFlg)) {
 
-      std::cout << boost::format("[%1%]") % hex << std::endl;
       // printf("[0x%s]\n\r", hex.c_str());
 
       if (printCapHexFlg) {
+
+        std::cout << boost::format("[%1%]") %
+                         boost::io::group(std::hex, std::showbase,
+                                          std::uppercase, hex_to_dec(hex))
+                  << std::endl;
+
         std::cout << boost::format("\tHEX : %1%") %
-                         boost::io::group(std::hex, std::uppercase,
-                                          std::showbase, hex_to_dec(hex))
+                         boost::io::group(std::hex, std::showbase,
+                                          std::uppercase, hex_to_dec(hex))
                   << std::endl;
         // printf("\tHEX : 0x%llX\n\r", hex_to_dec(hex));
       } else {
+
+        std::cout << boost::format("[%1%]") % boost::io::group(std::hex,
+                                                               std::showbase,
+                                                               hex_to_dec(hex))
+                  << std::endl;
+
         std::cout << boost::format("\tHEX : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           hex_to_dec(hex))
@@ -134,17 +147,17 @@ int main(int argc, char **argv) {
 
       if (printBinSpaceFlg) {
 
-        std::cout << boost::format("\tBIN : 0b%1%") %
-                         bin_insert_space(hex_to_bin(hex),
-                                          args::get(printBinSpaceFlg))
-                  << std::endl;
-        // printf("\tBIN : 0b%s\n\r",
-        //        bin_insert_space(hex_to_bin(hex), args::get(printBinSpaceFlg))
-        //            .c_str());
+        // std::cout << boost::format("\tBIN : 0b%1%") %
+        //                  bin_insert_space(hex_to_bin(hex),
+        //                                   args::get(printBinSpaceFlg))
+        //           << std::endl;
+        printf("\tBIN : 0b%s\n\r",
+               bin_insert_space(hex_to_bin(hex), args::get(printBinSpaceFlg))
+                   .c_str());
       } else {
-        std::cout << boost::format("\tBIN : 0b%1%") % hex_to_bin(hex)
-                  << std::endl;
-        // printf("\tBIN : 0b%s\n\r", hex_to_bin(hex).c_str());
+        // std::cout << boost::format("\tBIN : 0b%1%") % hex_to_bin(hex)
+        //           << std::endl;
+        printf("\tBIN : 0b%s\n\r", hex_to_bin(hex).c_str());
       }
       std::cout << boost::format(
                        "+------------------------------------------------+")
@@ -199,7 +212,7 @@ int main(int argc, char **argv) {
       }
 
       std::cout << boost::format(
-          "+------------------------------------------------+");
+          "+------------------------------------------------+") << std::endl;
     }
   }
 
@@ -212,7 +225,9 @@ int main(int argc, char **argv) {
       std::cout << boost::format("[0b%1%]") % bin << std::endl;
       // printf("[0b%s]\n\r", bin.c_str());
       if (printCapHexFlg) {
-        std::cout << boost::format("\tHEX : %1$X") % bin_to_dec(bin)
+        std::cout << boost::format("\tHEX : %1%") %
+                         boost::io::group(std::hex, std::showbase,
+                                          std::uppercase, bin_to_dec(bin))
                   << std::endl;
         // printf("\tHEX : 0x%llX\n\r", bin_to_dec(bin));
       } else {
@@ -248,6 +263,7 @@ int main(int argc, char **argv) {
 std::string hex_to_bin(std::string hex) {
   std::string bin = "";
   int i = 0;
+  try{
   while (hex.at(i)) {
     switch (hex.at(i)) {
     case '0':
@@ -311,6 +327,9 @@ std::string hex_to_bin(std::string hex) {
       return returnError;
     }
     i++;
+  }
+  } catch (const std::exception &e) {
+    return bin;
   }
   return bin;
 }
