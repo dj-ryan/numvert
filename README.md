@@ -1,6 +1,24 @@
-# numvert
-A cli program to convert numbers between bases
+![Imgur](https://imgur.com/Ye2hUWS.png)
 
+
+# Description
+
+### A cli program to convert numbers between bases
+
+# Installation
+
+- Clone and go to the root directory
+- Build using the make file or compile using:
+  - g++ src/numvert.cpp -o numvert -Wall -std=c++11 -Iinclude
+- Install
+  - Windows
+    - Copy binary to system folder such as 'Program Files'
+    - Add path to PATH variable
+  - Linux
+    - Copy binary into bin folder
+
+
+# Usage
 ```
   numvert {OPTIONS}
 
@@ -33,6 +51,10 @@ A cli program to convert numbers between bases
     ~ ALL TO HIM
 ```
 
-## Road Map
+# Road Map
   - Binary Parsing
     - Hex and nibble matching
+    - copy output to clipboard
+    - parse and convert csv file
+      - output to file
+
