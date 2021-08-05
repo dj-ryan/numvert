@@ -34,6 +34,7 @@ std::string dec_to_bin_set_spacing(unsigned long long int dec);
 
 int main(int argc, char **argv) {
 
+  /* Groups */
   args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ ALL TO HIM");
 
   args::Group inputGroup(parser,
@@ -42,11 +43,13 @@ int main(int argc, char **argv) {
   args::Group outputFormatingGroup(
       parser, "Output formating options:", args::Group::Validators::DontCare);
 
+  args::Group copyGroup(
+      parser, "Copy to clipboard options:", args::Group::Validators::DontCare);
+
   args::Group otherOptionsGroup(
       parser, "Other options:", args::Group::Validators::DontCare);
 
-  args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
-
+  /* Input types */
   args::ValueFlagList<std::string> hexadecimalInputFlg(
       inputGroup, "Hexadecimal",
       "Hexadecimal input, case insensitive (do not apply 0x prefix)",
@@ -56,9 +59,6 @@ int main(int argc, char **argv) {
   args::ValueFlagList<std::string> binaryInputFlg(
       inputGroup, "Binary", "Binary input (do not apply 0b prefix)",
       {'b', "bin"});
-
-  // args::ValueFlag<std::string> octalDeicmalInput(
-  //     parser, "Octal Decimal", "Octal Decimal input", {'o', "oct"});
 
   /* Output Formating Group */
   args::Flag printFullFlg(outputFormatingGroup, "Print Full",
@@ -78,13 +78,22 @@ int main(int argc, char **argv) {
                             "letters (can not be used as input)",
                             {'H', "cap-hex"});
 
-  /* Other options */
+  /* Copy options */
+  args::Flag copyHexFlg(copyGroup, "Copies hex output",
+                        "Copies hexadecimal conversion output to clipboard",
+                        {'x', "ch", "copy-hex", "copy-hexadecimal"});
+  args::Flag copyDecFlg(copyGroup, "COpies dec output",
+                        "Copies decimal conversion output to clipboard",
+                        {'y', "cd", "copy-dec", "copy-decimal"});
+  args::Flag copyBinFlg(copyGroup, "Copies bin output",
+                        "Copies binary conversion output to clipboard",
+                        {'z', "cb", "copy-bin", "copy-binary"});
 
+
+  /* Other options */
   args::Flag versionFlg(otherOptionsGroup, "Version",
                         "Prints version information", {"version"});
-
-  // args::Flag signedBinInput(otherOptionsGroup, "Signed Binary Input", "Marks
-  // all binary input as signed values", {"sb"}); // TODO: signed binary math
+  args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
   try {
     parser.ParseCLI(argc, argv);
@@ -111,7 +120,9 @@ int main(int argc, char **argv) {
   if (hexadecimalInputFlg) {
     for (std::string hex : args::get(hexadecimalInputFlg)) {
 
-      // printf("[0x%s]\n\r", hex.c_str());
+
+      // unsigned long long int convertedDec = hex_to_dec(hex);
+      // std::string convertedBin = hex_to_bin(hex);
 
       if (printCapHexFlg) {
 
@@ -124,7 +135,6 @@ int main(int argc, char **argv) {
                          boost::io::group(std::hex, std::showbase,
                                           std::uppercase, hex_to_dec(hex))
                   << std::endl;
-        // printf("\tHEX : 0x%llX\n\r", hex_to_dec(hex));
       } else {
 
         std::cout << boost::format("[%1%]") % boost::io::group(std::hex,
@@ -136,33 +146,27 @@ int main(int argc, char **argv) {
                          boost::io::group(std::hex, std::showbase,
                                           hex_to_dec(hex))
                   << std::endl;
-        // std::cout << boost::format("\tHEX : %1%") % hex << std::endl;
-        // printf("\tHEX : 0x%s\n\r", hex.c_str());
       }
 
       std::cout << boost::format("\tDEC : %1%") %
                        boost::io::group(std::dec, hex_to_dec(hex))
                 << std::endl;
-      // printf("\tDEC : %llu\n\r", hex_to_dec(hex));
 
       if (printBinSpaceFlg) {
 
-        // std::cout << boost::format("\tBIN : 0b%1%") %
-        //                  bin_insert_space(hex_to_bin(hex),
-        //                                   args::get(printBinSpaceFlg))
-        //           << std::endl;
-        printf("\tBIN : 0b%s\n\r",
-               bin_insert_space(hex_to_bin(hex), args::get(printBinSpaceFlg))
-                   .c_str());
+        std::cout << boost::format("\tBIN : 0b%1%") %
+                         bin_insert_space(hex_to_bin(hex),
+                                          args::get(printBinSpaceFlg))
+                  << std::endl;
+
       } else {
-        // std::cout << boost::format("\tBIN : 0b%1%") % hex_to_bin(hex)
-        //           << std::endl;
-        printf("\tBIN : 0b%s\n\r", hex_to_bin(hex).c_str());
+        std::cout << boost::format("\tBIN : 0b%1%") % hex_to_bin(hex)
+                  << std::endl;
+
       }
       std::cout << boost::format(
                        "+------------------------------------------------+")
                 << std::endl;
-      // printf("+------------------------------------------------+\n\r");
     }
   }
 
@@ -173,22 +177,20 @@ int main(int argc, char **argv) {
     for (unsigned long long int dec : decimalInputFlg) {
 
       std::cout << boost::format("[%1%]") % dec << std::endl;
-      // printf("[%llu]\n\r", dec);
+
       if (printCapHexFlg) {
         std::cout << boost::format("\tHEX : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           std::uppercase, dec)
                   << std::endl;
-        // printf("\tHEX : 0x%llX\n\r", dec);
+
       } else {
         std::cout << boost::format("\tHEX : %1%") %
                          boost::io::group(std::hex, std::showbase, dec)
                   << std::endl;
-        // printf("\tHEX : 0x%llx\n\r", dec);
       }
 
       std::cout << boost::format("\tDEC : %1%") % dec << std::endl;
-      // printf("\tDEC : %llu\n\r", dec);
 
       std::string bin;
 
@@ -204,15 +206,14 @@ int main(int argc, char **argv) {
         std::cout << boost::format("\tBIN : 0b%1%") %
                          bin_insert_space(bin, args::get(printBinSpaceFlg))
                   << std::endl;
-        // printf("\tBIN : 0b%s\n\r",
-        //        bin_insert_space(bin, args::get(printBinSpaceFlg)).c_str());
+
       } else {
         std::cout << boost::format("\tBIN : 0b%1%") % bin << std::endl;
-        // printf("\tBIN : 0b%s\n\r", bin.c_str());
       }
 
       std::cout << boost::format(
-          "+------------------------------------------------+") << std::endl;
+                       "+------------------------------------------------+")
+                << std::endl;
     }
   }
 
@@ -223,25 +224,23 @@ int main(int argc, char **argv) {
     for (std::string bin : args::get(binaryInputFlg)) {
 
       std::cout << boost::format("[0b%1%]") % bin << std::endl;
-      // printf("[0b%s]\n\r", bin.c_str());
+
       if (printCapHexFlg) {
         std::cout << boost::format("\tHEX : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           std::uppercase, bin_to_dec(bin))
                   << std::endl;
-        // printf("\tHEX : 0x%llX\n\r", bin_to_dec(bin));
+
       } else {
         std::cout << boost::format("\tHEX : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           bin_to_dec(bin))
                   << std::endl;
-        // printf("\tHEX : 0x%llx\n\r", bin_to_dec(bin));
       }
 
       std::cout << boost::format("\tDEC : %1%") % bin_to_dec(bin) << std::endl;
-      // printf("\tDEC : %llu\n\r", bin_to_dec(bin));
+
       std::cout << boost::format("\tBIN : 0b%1%") % bin << std::endl;
-      // printf("\tBIN : 0b%s\n\r", bin.c_str());
 
       std::cout << boost::format(
                        "+------------------------------------------------+")
@@ -251,7 +250,7 @@ int main(int argc, char **argv) {
 
   if (versionFlg) {
     std::cout << boost::format("version: %1%") % version << std::endl;
-    // printf("version: %s\n\r", version.c_str());
+
     std::cout << boost::format(
                      "+------------------------------------------------+")
               << std::endl;
@@ -263,71 +262,71 @@ int main(int argc, char **argv) {
 std::string hex_to_bin(std::string hex) {
   std::string bin = "";
   int i = 0;
-  try{
-  while (hex.at(i)) {
-    switch (hex.at(i)) {
-    case '0':
-      bin.append("0000");
-      break;
-    case '1':
-      bin.append("0001");
-      break;
-    case '2':
-      bin.append("0010");
-      break;
-    case '3':
-      bin.append("0011");
-      break;
-    case '4':
-      bin.append("0100");
-      break;
-    case '5':
-      bin.append("0101");
-      break;
-    case '6':
-      bin.append("0110");
-      break;
-    case '7':
-      bin.append("0111");
-      break;
-    case '8':
-      bin.append("1000");
-      break;
-    case '9':
-      bin.append("1001");
-      break;
-    case 'A':
-    case 'a':
-      bin.append("1010");
-      break;
-    case 'B':
-    case 'b':
-      bin.append("1011");
-      break;
-    case 'C':
-    case 'c':
-      bin.append("1100");
-      break;
-    case 'D':
-    case 'd':
-      bin.append("1101");
-      break;
-    case 'E':
-    case 'e':
-      bin.append("1110");
-      break;
-    case 'F':
-    case 'f':
-      bin.append("1111");
-      break;
-    default:
-      std::string returnError =
-          "ERROR: unable to parse Hex, invalid character: \'";
-      returnError = returnError + hex[i] + '\'';
-      return returnError;
+  try {
+    while (hex.at(i)) {
+      switch (hex.at(i)) {
+      case '0':
+        bin.append("0000");
+        break;
+      case '1':
+        bin.append("0001");
+        break;
+      case '2':
+        bin.append("0010");
+        break;
+      case '3':
+        bin.append("0011");
+        break;
+      case '4':
+        bin.append("0100");
+        break;
+      case '5':
+        bin.append("0101");
+        break;
+      case '6':
+        bin.append("0110");
+        break;
+      case '7':
+        bin.append("0111");
+        break;
+      case '8':
+        bin.append("1000");
+        break;
+      case '9':
+        bin.append("1001");
+        break;
+      case 'A':
+      case 'a':
+        bin.append("1010");
+        break;
+      case 'B':
+      case 'b':
+        bin.append("1011");
+        break;
+      case 'C':
+      case 'c':
+        bin.append("1100");
+        break;
+      case 'D':
+      case 'd':
+        bin.append("1101");
+        break;
+      case 'E':
+      case 'e':
+        bin.append("1110");
+        break;
+      case 'F':
+      case 'f':
+        bin.append("1111");
+        break;
+      default:
+        std::string returnError =
+            "ERROR: unable to parse Hex, invalid character: \'";
+        returnError = returnError + hex[i] + '\'';
+        return returnError;
+      }
+      i++;
     }
-    i++;
-  }
   } catch (const std::exception &e) {
     return bin;
   }

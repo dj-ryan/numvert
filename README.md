@@ -1,9 +1,22 @@
+
+
+
+
+
 ![Imgur](https://imgur.com/Ye2hUWS.png)
 
 
 # Description
 
-### A cli program to convert numbers between bases
+### A lightweight cli program to convert numbers between bases
+
+# Features
+
+- Copy specified output to clipboard automatically from command
+- Batch convert multiple values from single command
+- Convert numbers up to 8 bytes or 18,446,744,073,709,551,615
+- Format output with capital hexadecimal output, 
+    spaced binary output (on nibble or byte), comma decimal output etc...
 
 # Installation
 
@@ -28,8 +41,8 @@
 
       Input types:
         -h[Hexadecimal...],
-        --hex=[Hexadecimal...]            Hexadecimal input (do not apply 0x
-                                          prefix)
+        --hex=[Hexadecimal...]            Hexadecimal input, case insensitive
+                                          (do not apply 0x prefix)
         -d[Decimal...], -i[Decimal...],
         --dec=[Decimal...],
         --int=[Decimal...]                Decimal input
@@ -42,7 +55,18 @@
         --tb, --truncate-binary           Truncates binary output to least
                                           significant '1'
         -H, --cap-hex                     Prints all hexadecimal output with
-                                          capital letters
+                                          capital letters (can not be used as
+                                          input)
+      Copy to clipboard options:
+        -x, --ch, --copy-hex,
+        --copy-hexadecimal                Copies hexadecimal conversion output
+                                          to clipboard
+        -y, --cd, --copy-dec,
+        --copy-decimal                    Copies decimal conversion output to
+                                          clipboard
+        -z, --cb, --copy-bin,
+        --copy-binary                     Copies binary conversion output to
+                                          clipboard
       Other options:
         --version                         Prints version information
       -?, --help                        Display this help menu
@@ -54,7 +78,8 @@
 # Road Map
   - Binary Parsing
     - Hex and nibble matching
-    - copy output to clipboard
-    - parse and convert csv file
-      - output to file
+  - copy output to clipboard
+  - parse and convert csv file
+    - output to file
+  - Octal conversions
 
