@@ -20,6 +20,15 @@
 #include "args.hxx"
 #include "boost/format.hpp"
 
+#include "clip/clip.h"
+
+
+bool t = clip::set_text("Hello World");
+
+
+
+
+
 const std::string version = "v1.0.1";
 
 unsigned long long int hex_to_dec(std::string hex);

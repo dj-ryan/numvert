@@ -8,7 +8,7 @@ DEBUGFLAGS = -Wall -std=c++11 -g
 TARGET = numvert
 OUTPUT = 
 
-INCLUDE = -Iinclude
+INCLUDE = -Iinclude -Iclip
 SRCPATH = src
 BINPATH = bin
 
