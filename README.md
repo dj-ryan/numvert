@@ -12,7 +12,7 @@
 
 # Features
 
-- Copy specified output to clipboard automatically from command
+- Color coded output for easy readability 
 - Batch convert multiple values from single command
 - Convert numbers up to 8 bytes or 18,446,744,073,709,551,615
 - Format output with capital hexadecimal output, 
@@ -22,14 +22,13 @@
 
 - Clone and go to the root directory
 - Build using the make file or compile using:
-  - g++ src/numvert.cpp -o numvert -Wall -std=c++11 -Iinclude
+  - > g++ src/numvert.cpp -o numvert -Wall -std=c++11 -Iinclude
 - Install
   - Windows
     - Copy binary to system folder such as 'Program Files'
     - Add path to PATH variable
   - Linux
     - Copy binary into bin folder
-
 
 # Usage
 ```
@@ -75,11 +74,33 @@
     ~ ALL TO HIM
 ```
 
-# Road Map
+# Trouble shooting
+
+### Make file not working?
+
+You can build the file your self. 
+1. Make sure that you have `g++` installed.
+2. Compile using this line:
+> g++ src/numvert.cpp -o numvert -Wall -std=c++11 -Iinclude
+
+### Random Characters?  
+
+If you see random characters in your output such as `\x1b[41m` 
+
+You need to enable ANSI character escapes on your terminal or use a different terminal. 
+
+On windows
+- [Follow these instructions](https://ss64.com/nt/syntax-ansi.html)
+
+On Linux or Mac
+- Try a different terminal
+
+# Features to come
   - Binary Parsing
     - Hex and nibble matching
   - copy output to clipboard
   - parse and convert csv file
     - output to file
   - Octal conversions
+  - Copy specified output to clipboard automatically from command
 
