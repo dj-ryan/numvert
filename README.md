@@ -1,10 +1,4 @@
-
-
-
-
-
 ![Imgur](https://imgur.com/Ye2hUWS.png)
-
 
 # Description
 
@@ -85,15 +79,22 @@ You can build the file your self.
 
 ### Random Characters?  
 
-If you see random characters in your output such as `\x1b[41m` 
+If you see random characters in your output such as `\x1b[41m` or `←[41m`
 
 You need to enable ANSI character escapes on your terminal or use a different terminal. 
 
 On windows
-- [Follow these instructions](https://ss64.com/nt/syntax-ansi.html)
+- [Follow these instructions](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling)
+    - Search for your registry editor and open it
+    - change your directory to `KEY_CURRENT_USER\Console`
+    - Right click on the `\Console` folder and click: `New > DWORD (32-bit) Value`
+    - Set the name to `VirtualTerminalLevel` the value will be automaticly assigned as `0x0..0`
+    - Right click on your newly created DWORD variable and change the value to `1`.
+    - Close the registry editor and reopen your console
 
 On Linux or Mac
-- Try a different terminal
+- Try a different terminal, most support ANSI escapes.
+- Or google how to enable them
 
 # Features to come
   - Binary Parsing
