@@ -19,15 +19,10 @@
 // local libs
 #include "args.hxx"
 #include "boost/format.hpp"
+#include "colors.hpp"
 
-#include "clip/clip.h"
-
-
-bool t = clip::set_text("Hello World");
-
-
-
-
+// #include "clip/clip.h"
+//   bool t = clip::set_text("Hello World");
 
 const std::string version = "v1.0.1";
 
@@ -41,68 +36,68 @@ std::string bin_insert_space(std::string bin, int spacing_option);
 
 std::string dec_to_bin_set_spacing(unsigned long long int dec);
 
+/* Groups */
+args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ ALL TO HIM");
+
+args::Group inputGroup(parser,
+                       "Input types:", args::Group::Validators::AtLeastOne);
+
+args::Group outputFormatingGroup(parser, "Output formating options:",
+                                 args::Group::Validators::DontCare);
+
+args::Group copyGroup(parser, "Copy to clipboard options:",
+                      args::Group::Validators::DontCare);
+
+args::Group otherOptionsGroup(parser, "Other options:",
+                              args::Group::Validators::DontCare);
+
+/* Input types */
+args::ValueFlagList<std::string> hexadecimalInputFlg(
+    inputGroup, "Hexadecimal",
+    "Hexadecimal input, case insensitive (do not apply 0x prefix)",
+    {'h', "hex"});
+args::ValueFlagList<unsigned long long int>
+    decimalInputFlg(inputGroup, "Decimal", "Decimal input",
+                    {'d', "dec", 'i', "int"});
+args::ValueFlagList<std::string>
+    binaryInputFlg(inputGroup, "Binary",
+                   "Binary input (do not apply 0b prefix)", {'b', "bin"});
+
+/* Output Formating Group */
+args::Flag printFullFlg(outputFormatingGroup, "Print Full",
+                        "Prints advanced output", {'f', "full"});
+
+args::ValueFlag<int> printBinSpaceFlg(
+    outputFormatingGroup, "4 or 8",
+    "Prints spaces in between every forth binary bit or every byte",
+    {'s', "binary-spacing"});
+
+args::Flag truncateBinFlg(outputFormatingGroup, "Truncate Binary",
+                          "Truncates binary output to least significant '1'",
+                          {"tb", "truncate-binary"});
+
+args::Flag printCapHexFlg(outputFormatingGroup, "Print Hex with Cap",
+                          "Prints all hexadecimal output with capital "
+                          "letters (can not be used as input)",
+                          {'H', "cap-hex"});
+
+/* Copy options */
+args::Flag copyHexFlg(copyGroup, "Copies hex output",
+                      "Copies hexadecimal conversion output to clipboard",
+                      {'x', "ch", "copy-hex", "copy-hexadecimal"});
+args::Flag copyDecFlg(copyGroup, "COpies dec output",
+                      "Copies decimal conversion output to clipboard",
+                      {'y', "cd", "copy-dec", "copy-decimal"});
+args::Flag copyBinFlg(copyGroup, "Copies bin output",
+                      "Copies binary conversion output to clipboard",
+                      {'z', "cb", "copy-bin", "copy-binary"});
+
+/* Other options */
+args::Flag versionFlg(otherOptionsGroup, "Version",
+                      "Prints version information", {"version"});
+args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
+
 int main(int argc, char **argv) {
-
-  /* Groups */
-  args::ArgumentParser parser("Numvert", "Author: David Ryan\n~ ALL TO HIM");
-
-  args::Group inputGroup(parser,
-                         "Input types:", args::Group::Validators::AtLeastOne);
-
-  args::Group outputFormatingGroup(
-      parser, "Output formating options:", args::Group::Validators::DontCare);
-
-  args::Group copyGroup(
-      parser, "Copy to clipboard options:", args::Group::Validators::DontCare);
-
-  args::Group otherOptionsGroup(
-      parser, "Other options:", args::Group::Validators::DontCare);
-
-  /* Input types */
-  args::ValueFlagList<std::string> hexadecimalInputFlg(
-      inputGroup, "Hexadecimal",
-      "Hexadecimal input, case insensitive (do not apply 0x prefix)",
-      {'h', "hex"});
-  args::ValueFlagList<unsigned long long int> decimalInputFlg(
-      inputGroup, "Decimal", "Decimal input", {'d', "dec", 'i', "int"});
-  args::ValueFlagList<std::string> binaryInputFlg(
-      inputGroup, "Binary", "Binary input (do not apply 0b prefix)",
-      {'b', "bin"});
-
-  /* Output Formating Group */
-  args::Flag printFullFlg(outputFormatingGroup, "Print Full",
-                          "Prints advanced output", {'f', "full"});
-
-  args::ValueFlag<int> printBinSpaceFlg(
-      outputFormatingGroup, "4 or 8",
-      "Prints spaces in between every forth binary bit or every byte",
-      {'s', "binary-spacing"});
-
-  args::Flag truncateBinFlg(outputFormatingGroup, "Truncate Binary",
-                            "Truncates binary output to least significant '1'",
-                            {"tb", "truncate-binary"});
-
-  args::Flag printCapHexFlg(outputFormatingGroup, "Print Hex with Cap",
-                            "Prints all hexadecimal output with capital "
-                            "letters (can not be used as input)",
-                            {'H', "cap-hex"});
-
-  /* Copy options */
-  args::Flag copyHexFlg(copyGroup, "Copies hex output",
-                        "Copies hexadecimal conversion output to clipboard",
-                        {'x', "ch", "copy-hex", "copy-hexadecimal"});
-  args::Flag copyDecFlg(copyGroup, "COpies dec output",
-                        "Copies decimal conversion output to clipboard",
-                        {'y', "cd", "copy-dec", "copy-decimal"});
-  args::Flag copyBinFlg(copyGroup, "Copies bin output",
-                        "Copies binary conversion output to clipboard",
-                        {'z', "cb", "copy-bin", "copy-binary"});
-
-
-  /* Other options */
-  args::Flag versionFlg(otherOptionsGroup, "Version",
-                        "Prints version information", {"version"});
-  args::HelpFlag help(parser, "help", "Display this help menu", {'?', "help"});
 
   try {
     parser.ParseCLI(argc, argv);
@@ -129,7 +124,6 @@ int main(int argc, char **argv) {
   if (hexadecimalInputFlg) {
     for (std::string hex : args::get(hexadecimalInputFlg)) {
 
-
       // unsigned long long int convertedDec = hex_to_dec(hex);
       // std::string convertedBin = hex_to_bin(hex);
 
@@ -140,10 +134,11 @@ int main(int argc, char **argv) {
                                           std::uppercase, hex_to_dec(hex))
                   << std::endl;
 
-        std::cout << boost::format("\tHEX : %1%") %
+        std::cout << redBrightBackground << "\tHEX" << resetColor << redBright
+                  << boost::format(" : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           std::uppercase, hex_to_dec(hex))
-                  << std::endl;
+                  << resetColor << std::endl;
       } else {
 
         std::cout << boost::format("[%1%]") % boost::io::group(std::hex,
@@ -151,27 +146,30 @@ int main(int argc, char **argv) {
                                                                hex_to_dec(hex))
                   << std::endl;
 
-        std::cout << boost::format("\tHEX : %1%") %
-                         boost::io::group(std::hex, std::showbase,
-                                          hex_to_dec(hex))
-                  << std::endl;
+        std::cout << redBrightBackground << "\tHEX" << resetColor << redBright
+                  << boost::format(" : %1%") % boost::io::group(std::hex,
+                                                                std::showbase,
+                                                                hex_to_dec(hex))
+                  << resetColor << std::endl;
       }
 
-      std::cout << boost::format("\tDEC : %1%") %
+      std::cout << greenBrightBackground << "\tDEC" << resetColor << greenBright
+                << boost::format(" : %1%") %
                        boost::io::group(std::dec, hex_to_dec(hex))
-                << std::endl;
+                << resetColor << std::endl;
 
       if (printBinSpaceFlg) {
 
-        std::cout << boost::format("\tBIN : 0b%1%") %
+        std::cout << blueBrightBackground << "\tBIN" << resetColor << blueBright
+                  << boost::format(" : 0b%1%") %
                          bin_insert_space(hex_to_bin(hex),
                                           args::get(printBinSpaceFlg))
-                  << std::endl;
+                  << resetColor << std::endl;
 
       } else {
-        std::cout << boost::format("\tBIN : 0b%1%") % hex_to_bin(hex)
+        std::cout << blueBrightBackground << "\tBIN" << resetColor << blueBright
+                  << boost::format(" : 0b%1%") % hex_to_bin(hex) << resetColor
                   << std::endl;
-
       }
       std::cout << boost::format(
                        "+------------------------------------------------+")
@@ -188,36 +186,39 @@ int main(int argc, char **argv) {
       std::cout << boost::format("[%1%]") % dec << std::endl;
 
       if (printCapHexFlg) {
-        std::cout << boost::format("\tHEX : %1%") %
+        std::cout << redBrightBackground << "\tHEX" << resetColor << redBright
+                  << boost::format(" : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           std::uppercase, dec)
-                  << std::endl;
+                  << resetColor << std::endl;
 
       } else {
-        std::cout << boost::format("\tHEX : %1%") %
+        std::cout << redBrightBackground << "\tHEX" << resetColor << redBright
+                  << boost::format(" : %1%") %
                          boost::io::group(std::hex, std::showbase, dec)
-                  << std::endl;
+                  << resetColor << std::endl;
       }
 
-      std::cout << boost::format("\tDEC : %1%") % dec << std::endl;
+      std::cout << greenBrightBackground << "\tDEC" << resetColor << greenBright
+                << boost::format(" : %1%") % dec << resetColor << std::endl;
 
       std::string bin;
 
-      if (truncateBinFlg) // truncating bin option
-      {
+      if (truncateBinFlg) {
         bin = dec_to_bin(dec, "");
       } else {
         bin = dec_to_bin_set_spacing(dec);
       }
 
-      if (printBinSpaceFlg) // bin spacing option
-      {
-        std::cout << boost::format("\tBIN : 0b%1%") %
+      if (printBinSpaceFlg) {
+        std::cout << blueBrightBackground << "\tBIN" << resetColor << blueBright
+                  << boost::format(" : 0b%1%") %
                          bin_insert_space(bin, args::get(printBinSpaceFlg))
-                  << std::endl;
+                  << resetColor << std::endl;
 
       } else {
-        std::cout << boost::format("\tBIN : 0b%1%") % bin << std::endl;
+        std::cout << blueBrightBackground << "\tBIN" << resetColor << blueBright
+                  << boost::format(" : 0b%1%") % bin << resetColor << std::endl;
       }
 
       std::cout << boost::format(
@@ -235,21 +236,26 @@ int main(int argc, char **argv) {
       std::cout << boost::format("[0b%1%]") % bin << std::endl;
 
       if (printCapHexFlg) {
-        std::cout << boost::format("\tHEX : %1%") %
+        std::cout << redBrightBackground << "\tHEX" << resetColor << redBright
+                  << boost::format(" : %1%") %
                          boost::io::group(std::hex, std::showbase,
                                           std::uppercase, bin_to_dec(bin))
-                  << std::endl;
+                  << resetColor << std::endl;
 
       } else {
-        std::cout << boost::format("\tHEX : %1%") %
-                         boost::io::group(std::hex, std::showbase,
-                                          bin_to_dec(bin))
-                  << std::endl;
+        std::cout << redBrightBackground << "\tHex" << resetColor << redBright
+                  << boost::format(" : %1%") % boost::io::group(std::hex,
+                                                                std::showbase,
+                                                                bin_to_dec(bin))
+                  << resetColor << std::endl;
       }
 
-      std::cout << boost::format("\tDEC : %1%") % bin_to_dec(bin) << std::endl;
+      std::cout << greenBrightBackground << "\tDEC" << resetColor << greenBright
+                << boost::format(" : %1%") % bin_to_dec(bin) << resetColor
+                << std::endl;
 
-      std::cout << boost::format("\tBIN : 0b%1%") % bin << std::endl;
+      std::cout << blueBrightBackground << "\tBIN" << resetColor << blueBright
+                << boost::format(" : 0b%1%") % bin << resetColor << std::endl;
 
       std::cout << boost::format(
                        "+------------------------------------------------+")
