@@ -4,9 +4,50 @@ use ratatui::{
     style::{Color, Style},
     widgets::{Block, Borders, Paragraph},
     widgets::Widget,
+    text::Text,
 };
 
+use clap::{Arg, Command};
+
+
 fn main() {
+
+    let matches = Command::new("hex-converter")
+        .version("0.1")
+        .about("bitwise")
+        .author("daryan")
+        // Define the positional argument
+        .arg(
+            Arg::new("input")
+                .help("The input required for analysis")
+                .required(true)
+                .index(1)
+        )
+        .get_matches();
+
+    let input_str = matches.get_one::<String>("input").unwrap();
+
+    let (hex_output, binary_output, decimal_output) = if input_str.starts_with("0x") {
+        let hex = input_str.trim_start_matches("0x").to_string();
+        let dec = u32::from_str_radix(&hex, 16).unwrap();
+        let bin = format!("{:b}", dec);
+        (hex, bin, dec)
+    } else if input_str.starts_with("0b") {
+        let bin = input_str.trim_start_matches("0b").to_string();
+        let dec = u32::from_str_radix(&bin, 2).unwrap();
+        let hex = format!("{:X}", dec);
+        (hex, bin, dec)
+    } else {
+        let dec = input_str.parse::<u32>().unwrap();
+        let hex = format!("{:X}", dec);
+        let bin = format!("{:b}", dec);
+        (hex, bin, dec)
+    };
+
+
+    
+
+
     // Define the area we'll be rendering to
     let area = Rect::new(0, 0, 80, 24);
     
@@ -50,7 +91,9 @@ fn main() {
     sidebar.render(content_chunks[0], &mut buffer);
     
     // Create and render a main content block with some text
-    let main_content = Paragraph::new("This is the main content area.")
+    let output_txt = Text::from(format!("Decimal: {}\nHexadecimal: {}\nBinary: {}", decimal_output, hex_output, binary_output));
+
+    let main_content = Paragraph::new(output_txt)
         .block(Block::default().title("Main Content").borders(Borders::ALL));
     
     // Render the main content block to the buffer
