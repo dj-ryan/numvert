@@ -1,7 +1,9 @@
+
+use std::io::{self, Write};
 use clap::{ Arg, Command };
 use color_eyre::Result;
 use crossterm::event::{ self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers };
-use crossterm::terminal::{ disable_raw_mode, enable_raw_mode };
+use crossterm::{ terminal::{ disable_raw_mode, enable_raw_mode }, ExecutableCommand };
 use ratatui::{
     DefaultTerminal,
     Frame,
@@ -9,6 +11,8 @@ use ratatui::{
     style::Stylize,
     text::Line,
     widgets::{ Block, Paragraph },
+    backend::{CrosstermBackend},
+    Terminal
 };
 
 fn main() -> color_eyre::Result<()> {
@@ -19,12 +23,7 @@ fn main() -> color_eyre::Result<()> {
         .author("dryan")
         .about("bitwise")
         // Define the argument we want to accept
-        .arg(
-            Arg::new("input")
-                .index(1)
-                .help("The number to convert")
-                .required(true)
-        )
+        .arg(Arg::new("input").index(1).help("The number to convert").required(true))
         .get_matches();
 
     let input_str = matches.get_one::<String>("input").unwrap();
@@ -32,18 +31,32 @@ fn main() -> color_eyre::Result<()> {
     if input_str.starts_with("0x") {
         let hex_num = u32::from_str_radix(input_str.trim_start_matches("0x"), 16).unwrap();
         println!("Hexadecimal number: {}", hex_num);
-    } if input_str.starts_with("0b"){
+    }
+    if input_str.starts_with("0b") {
         let bin_num = u32::from_str_radix(input_str.trim_start_matches("0b"), 2).unwrap();
         println!("Binary number: {}", bin_num);
-    }else {
+    } else {
         let num = input_str.parse::<u32>().unwrap();
         println!("Decimal number: {}", num);
     }
 
-    let terminal = ratatui::init();
+    // Set up the terminal without alternate screen
+    let mut stdout = io::stdout();
+    enable_raw_mode()?;
+
+    // Create the backend but don't enter alternate screen
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
+
+    // let terminal = ratatui::init();
     let result = App::new().run(terminal);
     // ratatui::restore();
     // Terminal::disable_raw_mode()?;
+
+    // terminal.draw(|frame| self.render(frame))?;
+
+    
+    
     disable_raw_mode()?;
     result
 }
@@ -66,6 +79,7 @@ impl App {
         self.running = true;
         while self.running {
             terminal.draw(|frame| self.render(frame))?;
+            terminal.backend_mut().flush()?;
             self.handle_crossterm_events()?;
         }
         Ok(())
@@ -137,3 +151,4 @@ impl App {
         self.running = false;
     }
 }
+
