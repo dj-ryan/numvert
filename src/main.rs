@@ -1,6 +1,7 @@
 use clap::{ Arg, Command };
 use color_eyre::Result;
 use crossterm::event::{ self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers };
+use crossterm::terminal::{ disable_raw_mode, enable_raw_mode };
 use ratatui::{
     DefaultTerminal,
     Frame,
@@ -41,7 +42,9 @@ fn main() -> color_eyre::Result<()> {
 
     let terminal = ratatui::init();
     let result = App::new().run(terminal);
-    ratatui::restore();
+    // ratatui::restore();
+    // Terminal::disable_raw_mode()?;
+    disable_raw_mode()?;
     result
 }
 
