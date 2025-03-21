@@ -40,13 +40,13 @@ fn main() {
     let mut dec_buf = decimal_output.clone();
     let mut bin_output_formated = String::from(format!("{:08b}", dec_buf & 0xff));
 
-    while dec_buf > 0 {
+    for _ in 0..7 {
         bin_output_formated = format!("{:08b} | {}", (dec_buf >> 8) & 0xff, bin_output_formated);
         dec_buf >>= 8;
     }
 
     // Define the area we'll be rendering to
-    let area = Rect::new(0, 0, 100, 24);
+    let area = Rect::new(0, 0, 140, 10);
 
     // Create a buffer with the same dimensions as our area
     let mut buffer = Buffer::empty(area);
