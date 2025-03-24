@@ -1,3 +1,4 @@
+use color_eyre::owo_colors::{OwoColorize, colors::*, AnsiColors};
 use ratatui::{
     buffer::Buffer,
     layout::{ Constraint, Direction, Layout, Rect },
@@ -5,6 +6,7 @@ use ratatui::{
     widgets::{ Block, Borders, Paragraph },
     widgets::Widget,
     text::Text,
+    // owo_color::{OwoColorize, colors::*},
 };
 
 use clap::{ Arg, Command };
@@ -12,7 +14,7 @@ use clap::{ Arg, Command };
 fn main() {
     let matches = Command::new("hex-converter")
         .version("0.1")
-        .about("bitwise")
+        .about("numvert")
         .author("daryan")
         // Define the positional argument
         .arg(Arg::new("input").help("The input required for analysis").required(true).index(1))
@@ -46,29 +48,10 @@ fn main() {
     }
 
     // Define the area we'll be rendering to
-    let area = Rect::new(0, 0, 140, 10);
+    let area = Rect::new(0, 0, 140, 7);
 
     // Create a buffer with the same dimensions as our area
     let mut buffer = Buffer::empty(area);
-
-    // Create a layout with two vertical chunks
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(1)
-        .constraints([
-            Constraint::Length(3), // Header area
-            Constraint::Min(0), // Content area
-        ])
-        .split(area);
-
-    // Create and render a header block
-    let header = Block::default()
-        .title("Header")
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::White).bg(Color::Blue));
-
-    // Render the header block to the buffer
-    header.render(chunks[0], &mut buffer);
 
     // Split the content area into two horizontal chunks
     let content_chunks = Layout::default()
@@ -77,26 +60,30 @@ fn main() {
             Constraint::Percentage(30), // Sidebar
             Constraint::Percentage(70), // Main content
         ])
-        .split(chunks[1]);
+        .margin(1)
+        .split(area);
 
-    // Create and render a sidebar block
-    let sidebar = Block::default().title("Sidebar").borders(Borders::ALL);
-
-    // Render the sidebar block to the buffer
-    sidebar.render(content_chunks[0], &mut buffer);
 
     // Create and render a main content block with some text
-    let output_txt = Text::from(
+    let conversion_text = Text::from(
         format!(
-            "Decimal: {}\nHexadecimal: {}\nBinary: {}",
+            "Dec: {}\nHex: {}\nBin: {:b}",
             decimal_output,
             hex_output,
-            bin_output_formated
+            decimal_output
         )
     );
 
-    let main_content = Paragraph::new(output_txt).block(
-        Block::default().title("Main Content").borders(Borders::ALL)
+    // OwoColorize::fg(&self);
+
+    let byte_breakdown_text = Text::from(format!("{}", bin_output_formated)).color(AnsiColors::Green);
+
+    let sidebar = Paragraph::new(conversion_text).block(
+        Block::default().title("Conversion").borders(Borders::ALL)
+    );
+    sidebar.render(content_chunks[0], &mut buffer);
+    let main_content = Paragraph::new(byte_breakdown_text).block(
+        Block::default().title("Byte breakdown").borders(Borders::ALL)
     );
 
     // Render the main content block to the buffer

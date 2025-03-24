@@ -101,16 +101,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c8214115b7bf84099f1309324e63141d4c5d7cc26862f97a0a857dbefe165bd"
 
 [[package]]
-name = "bitwise"
-version = "0.1.0"
-dependencies = [
- "clap",
- "color-eyre",
- "crossterm",
- "ratatui",
-]
-
-[[package]]
 name = "cassowary"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -461,6 +451,16 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "numvert"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "crossterm",
+ "ratatui",
 ]
 
 [[package]]

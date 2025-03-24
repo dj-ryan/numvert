@@ -1,5 +1,5 @@
 [package]
-name = "bitwise"
+name = "numvert"
 version = "0.1.0"
 authors = ["David Ryan <daryan@amazon.com>"]
 license = "MIT"
