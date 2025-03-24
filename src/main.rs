@@ -6,46 +6,62 @@ use ratatui::{
     widgets::{ Block, Borders, Paragraph },
     widgets::Widget,
     text::Text,
+    prelude::*,
+    backend::CrosstermBackend,
     // owo_color::{OwoColorize, colors::*},
 };
 
+use std::io::{stdout, Write};
+
 use clap::{ Arg, Command };
 
+
+
+fn parse_input(input: &String) -> u64 {
+    let prefix = input.get(0..1);
+    match prefix {
+        Some("0x") => u64::from_str_radix(&input[2..], 16).unwrap(),
+        Some("0b") => u64::from_str_radix(&input[2..], 2).unwrap(),
+        _ => input.parse::<u64>().unwrap(),
+    }
+}
+
 fn main() {
-    let matches = Command::new("hex-converter")
+    let matches = Command::new("numvert")
         .version("0.1")
-        .about("numvert")
+        .about("A byte tool")
         .author("daryan")
         // Define the positional argument
         .arg(Arg::new("input").help("The input required for analysis").required(true).index(1))
         .get_matches();
 
-    let input_str = matches.get_one::<String>("input").unwrap();
+    let input = parse_input(matches.get_one::<String>("input").unwrap());
 
-    let (hex_output, _binary_output, decimal_output) = if input_str.starts_with("0x") {
-        let hex = input_str.trim_start_matches("0x").to_string();
-        let dec = u64::from_str_radix(&hex, 16).unwrap();
-        let bin = format!("{:b}", dec);
-        (hex, bin, dec)
-    } else if input_str.starts_with("0b") {
-        let bin = input_str.trim_start_matches("0b").to_string();
-        let dec = u64::from_str_radix(&bin, 2).unwrap();
-        let hex = format!("{:X}", dec);
-        (hex, bin, dec)
-    } else {
-        let dec = input_str.parse::<u64>().unwrap();
-        let hex = format!("{:X}", dec);
-        let bin = format!("{:b}", dec);
-        (hex, bin, dec)
-    };
+    let mut input_buffer = input.clone();
+    // let mut bin_output_formated = String::from(format!("{:08b}", dec_buf & 0xff));
 
-    let mut dec_buf = decimal_output.clone();
-    let mut bin_output_formated = String::from(format!("{:08b}", dec_buf & 0xff));
+    let mut formated_binary = Line::default();
 
-    for _ in 0..7 {
-        bin_output_formated = format!("{:08b} | {}", (dec_buf >> 8) & 0xff, bin_output_formated);
-        dec_buf >>= 8;
+    for i in 0..63 {
+        let bit = input_buffer & 0x1; // capture last bit
+        input_buffer >>= 1;
+        if bit == 1 {
+            let span = Span::styled("1", Style::default().fg(Color::Yellow));
+            formated_binary.push_span(span);
+        } else {
+            let span = Span::styled("0", Style::default().fg(Color::Red));
+            formated_binary.push_span(span);
+        }        
+        if i % 8 == 0 {
+            formated_binary.push_span(" | ");
+        } 
     }
+
+
+    // for _ in 0..7 {
+    //     bin_output_formated = format!("{:08b} | {}", (dec_buf >> 8) & 0xff, bin_output_formated);
+    //     dec_buf >>= 8;
+    // }
 
     // Define the area we'll be rendering to
     let area = Rect::new(0, 0, 140, 7);
@@ -67,16 +83,16 @@ fn main() {
     // Create and render a main content block with some text
     let conversion_text = Text::from(
         format!(
-            "Dec: {}\nHex: {}\nBin: {:b}",
-            decimal_output,
-            hex_output,
-            decimal_output
+            "Dec: {}\nHex: 0x{:x}\nBin: 0b{:b}",
+            input,
+            input,
+            input
         )
     );
 
     // OwoColorize::fg(&self);
 
-    let byte_breakdown_text = Text::from(format!("{}", bin_output_formated)).color(AnsiColors::Green);
+    let byte_breakdown_text = Text::from(formated_binary);
 
     let sidebar = Paragraph::new(conversion_text).block(
         Block::default().title("Conversion").borders(Borders::ALL)
@@ -96,33 +112,40 @@ fn main() {
 // Function to print the buffer to stdout
 fn print_buffer(buffer: &Buffer) {
     // Convert the buffer to a string representation
-    let mut output = String::new();
+    // let mut output = String::new();
 
-    // Get buffer content as a vector of lines
-    let content = buffer.content
-        .iter()
-        .map(|cell| cell.symbol())
-        .collect::<Vec<_>>();
+    let backend = CrosstermBackend::new(stdout());
 
-    // Iterate through each line of the buffer
-    for y in 0..buffer.area.height {
-        let mut line = String::new();
+    // backend.style(style)
 
-        // Iterate through each cell in the line
-        for x in 0..buffer.area.width {
-            let idx = (y * buffer.area.width + x) as usize;
-            if idx < content.len() {
-                line.push_str(&content[idx]);
+    // Write the buffer content to stdout with styling
+    for (idx, cell) in buffer.content.iter().enumerate() {
+        let x = idx as u16 % buffer.area.width;
+        let y = idx as u16 / buffer.area.width;
+        
+        if cell.style(). {
+            // Only print non-empty cells
+            if !cell.symbol().is_empty() && cell.symbol() != " " {
+                backend.style(cell.style());
+                print!("{}", cell.symbol());
+                backend.style(Style::default()); // Reset style
             } else {
-                line.push(' ');
+                print!(" ");
             }
+        } else {
+            print!("{}", cell.symbol());
         }
-
-        // Add the line to the output
-        output.push_str(&line);
-        output.push('\n');
+        
+        // Add newline at the end of each row
+        if x == buffer.area.width - 1 {
+            println!();
+        }
     }
+    
+    // Reset any styling
+    backend.style(Style::default())?;
+    println!();
 
     // Print the output
-    println!("{}", output);
+    // println!("{}", output);
 }
