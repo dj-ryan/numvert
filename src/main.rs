@@ -1,11 +1,11 @@
-use color_eyre::owo_colors::{ OwoColorize, colors::*, AnsiColors };
+use color_eyre::owo_colors::{ colors::*, AnsiColors, OwoColorize };
 use ratatui::{
     buffer::Buffer,
-    layout::{ Constraint, Direction, Layout, Rect },
+    layout::{ Constraint, Direction, Layout, Rect, Alignment },
     style::{ Color, Style },
-    widgets::{ Block, Borders, Paragraph },
+    widgets::{ Block, Borders, Paragraph, Padding },
     widgets::Widget,
-    text::Text,
+    text::{Line, Text},
     prelude::*,
     backend::CrosstermBackend,
     // owo_color::{OwoColorize, colors::*},
@@ -20,8 +20,11 @@ use std::io::{ self, Write, Result };
 
 use clap::{ Arg, Command };
 
+const SMALL_VALUE: f64 = 0.000000000000000000001;
+
 fn parse_input(input: &String) -> u64 {
-    let prefix = input.get(0..1);
+    let prefix = input.get(0..2);
+    dbg!(prefix);
     match prefix {
         Some("0x") => u64::from_str_radix(&input[2..], 16).unwrap(),
         Some("0b") => u64::from_str_radix(&input[2..], 2).unwrap(),
@@ -60,16 +63,15 @@ fn main() {
         }
     }
 
-    // reverse order of the span formated_binary through a closure
-    
+    let mut formated_binary_discription = Line::default();
+    for i in 0..8 {
 
-    // for _ in 0..7 {
-    //     bin_output_formated = format!("{:08b} | {}", (dec_buf >> 8) & 0xff, bin_output_formated);
-    //     dec_buf >>= 8;
-    // }
+        formated_binary_discription.push_span(format!("[{:2.}  {:2.}]   ", ((8 - i) * 8) - 1, ((8 - i) * 8) - 8));
+    }
+
 
     // Define the area we'll be rendering to
-    let area = Rect::new(0, 0, 130, 7);
+    let area = Rect::new(0, 0, 200, 9);
 
     // Create a buffer with the same dimensions as our area
     let mut buffer = Buffer::empty(area);
@@ -81,30 +83,51 @@ fn main() {
             // Constraint::Percentage(30), // Sidebar
             Constraint::Min(1),
             // Constraint::Percentage(70), // Main content
-            Constraint::Max(87)
+            Constraint::Max(89)
         ])
         .margin(1)
         .split(area);
 
     // Create and render a main content block with some text
-    let conversion_text = Text::from(
-        format!("Dec: {}\nHex: 0x{:x}\nBin: 0b{:b}", input, input, input)
-    );
-
+    let mut conversion_text = Text::default();
+    conversion_text.push_line(Line::from(vec![
+        Span::raw("Dec: "),
+        Span::styled(format!("{}", input), Style::new().red())
+    ]));
+    conversion_text.push_line(Line::from(vec![
+        Span::raw("Hex: "),
+        Span::styled(format!("0x{:x}", input), Style::default().fg(Color::LightGreen))
+    ]));
+    conversion_text.push_line(Line::from(vec![
+        Span::raw("Bin: "),
+        Span::styled(format!("0b{:b}", input), Style::default().fg(Color::LightCyan))
+    ]));
+    conversion_text.push_line(Line::from(vec![
+        Span::raw("i3e: "),
+        Span::styled(format!("{}", f64::from_bits(input)), Style::default().fg(Color::LightYellow))
+    ]));
+    conversion_text.push_line(Line::from(vec![
+        Span::raw("2's: "),
+        Span::styled(format!("{}",  (!input).wrapping_add(1)), Style::default().fg(Color::LightMagenta))
+    ]));
     // OwoColorize::fg(&self);
 
-    let byte_breakdown_text = Text::from(formated_binary);
+    let mut byte_breakdown_text = Text::default();
+    byte_breakdown_text.push_line(formated_binary);
+    byte_breakdown_text.push_line(formated_binary_discription);
+    // byte_breakdown_text.centered();
 
     let sidebar = Paragraph::new(conversion_text).block(
         Block::default().title("Conversion").borders(Borders::ALL)
     );
     sidebar.render(content_chunks[0], &mut buffer);
     let main_content = Paragraph::new(byte_breakdown_text).block(
-        Block::default().title("Byte breakdown").borders(Borders::ALL)
+        Block::default().title("Byte breakdown").borders(Borders::ALL).padding(Padding::horizontal(1))
     );
 
     // Render the main content block to the buffer
     main_content.render(content_chunks[1], &mut buffer);
+    // byte_breakdown_text.centered().
 
     // Print the buffer content to stdout
     let _ = print_buffer(&buffer);
@@ -173,4 +196,3 @@ fn convert_color(color: Color) -> CrossColor {
         _ => CrossColor::Reset,
     }
 }
-
