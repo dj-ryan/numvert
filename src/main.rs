@@ -70,62 +70,72 @@ fn math_engine(input: u64, operations: Vec<(OPERATOR, u64)>) -> u64 {
 }
 
 fn assemble_math_ops(matches: &clap::ArgMatches) -> Option<Vec<(OPERATOR, u64)>> {
-
-    let mut add_ops_val: Option<Vec<u64>> = matches.get_many::<String>("plus").and_then(|ops| Some(ops.map(|op| parse_input(op)).collect()));
-    let mut sub_ops_val: Option<Vec<u64>> = matches.get_many::<String>("minus").map(|ops| ops.map(|op| parse_input(op)).collect());
-    let mut mult_ops_val: Option<Vec<u64>> = matches.get_many::<String>("times").map(|ops| ops.map(|op| parse_input(op)).collect());
-    let mut div_ops_val: Option<Vec<u64>> = matches.get_many::<String>("div").map(|ops| ops.map(|op| parse_input(op)).collect());
-    let mut left_shift_ops_val: Option<Vec<u64>> = matches.get_many::<String>("left-shift").map(|ops| ops.map(|op| parse_input(op)).collect());
-    let mut right_shift_ops_val: Option<Vec<u64>> = matches.get_many::<String>("right-shift").map(|ops| ops.map(|op| parse_input(op)).collect());
-    let mut and_ops_val: Option<Vec<u64>> = matches.get_many::<String>("and").map(|ops| ops.map(|op| parse_input(op)).collect());
-    let mut or_ops_val: Option<Vec<u64>> = matches.get_many::<String>("or").map(|ops| ops.map(|op| parse_input(op)).collect());
+    // Define operator types and their corresponding argument names
+    let operator_configs = [
+        (OPERATOR::plus, "plus"),
+        (OPERATOR::minus, "minus"),
+        (OPERATOR::times, "times"),
+        (OPERATOR::div, "div"),
+        (OPERATOR::left_shift, "left-shift"),
+        (OPERATOR::right_shift, "right-shift"),
+        (OPERATOR::and, "and"),
+        (OPERATOR::or, "or"),
+    ];
     
-    let mut all_ops_pos: Vec<(usize, OPERATOR)> = Vec::new();
-
-    if let Some(indices) = matches.indices_of("plus").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::plus)))) {
-        all_ops_pos.extend(indices);
+    // Collect values and positions for each operator type
+    let mut operator_values = Vec::new();
+    let mut all_ops_pos = Vec::new();
+    
+    for (op_type, arg_name) in &operator_configs {
+        // Get values for this operator type
+        if let Some(values) = matches.get_many::<String>(arg_name) {
+            let parsed_values: Vec<u64> = values
+                .map(|op| parse_input(op))
+                .collect();
+            
+            if !parsed_values.is_empty() {
+                operator_values.push((*op_type, parsed_values));
+            }
+        }
+        
+        // Get positions for this operator type
+        if let Some(indices) = matches.indices_of(arg_name) {
+            let op_positions: Vec<(usize, OPERATOR)> = indices
+                .map(|idx| (idx, *op_type))
+                .collect();
+            
+            all_ops_pos.extend(op_positions);
+        }
     }
-    if let Some(indices) = matches.indices_of("minus").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::minus)))) {
-        all_ops_pos.extend(indices);
-    }
-    if let Some(indices) = matches.indices_of("times").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::times)))) {
-        all_ops_pos.extend(indices);
-    }
-    if let Some(indices) = matches.indices_of("div").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::div)))) {
-        all_ops_pos.extend(indices);
-    }
-    if let Some(indices) = matches.indices_of("left-shift").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::left_shift)))) {
-        all_ops_pos.extend(indices);
-    }
-    if let Some(indices) = matches.indices_of("right-shift").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::right_shift)))) {
-        all_ops_pos.extend(indices);
-    }
-    if let Some(indices) = matches.indices_of("and").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::and)))) {
-        all_ops_pos.extend(indices);
-    }
-    if let Some(indices) = matches.indices_of("or").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::or)))) {
-        all_ops_pos.extend(indices);
-    }
+    
+    // Sort operators by their position in the command line
     all_ops_pos.sort_by(|a, b| a.0.cmp(&b.0));
-
-    let mut assembled_math_ops: Vec<(OPERATOR, u64)> = Vec::new();
-
-    for op_pos in all_ops_pos {
-        let next_op_val: u64 = match op_pos.1 {
-            OPERATOR::plus => add_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::minus => sub_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::times => mult_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::div => div_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::left_shift => left_shift_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::right_shift => right_shift_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::and => and_ops_val.as_mut().unwrap().pop().unwrap(),
-            OPERATOR::or => or_ops_val.as_mut().unwrap().pop().unwrap(),
-        };
-
-        assembled_math_ops.push((op_pos.1, next_op_val));
+    
+    // Assemble the final list of operations in order
+    let mut assembled_math_ops = Vec::with_capacity(all_ops_pos.len());
+    
+    for (_, op_type) in all_ops_pos {
+        // Find the correct value collection for this operator type
+        let value_idx = operator_values
+            .iter_mut()
+            .position(|(op, _)| *op == op_type);
+        
+        if let Some(idx) = value_idx {
+            if let Some(value) = operator_values[idx].1.pop() {
+                assembled_math_ops.push((op_type, value));
+            } else {
+                // No values left for this operator - this shouldn't happen
+                // if CLI parsing worked correctly, but handle it gracefully
+                return None;
+            }
+        } else {
+            // No values for this operator type - this shouldn't happen
+            // if CLI parsing worked correctly, but handle it gracefully
+            return None;
+        }
     }
-
-    return Some(assembled_math_ops);
+    
+    Some(assembled_math_ops)
 }
 
 fn main() {
