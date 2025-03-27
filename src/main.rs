@@ -81,45 +81,39 @@ fn assemble_math_ops(matches: &clap::ArgMatches) -> Option<Vec<(OPERATOR, u64)>>
         (OPERATOR::and, "and"),
         (OPERATOR::or, "or"),
     ];
-    
+
     // Collect values and positions for each operator type
     let mut operator_values = Vec::new();
     let mut all_ops_pos = Vec::new();
-    
+
     for (op_type, arg_name) in &operator_configs {
         // Get values for this operator type
         if let Some(values) = matches.get_many::<String>(arg_name) {
-            let parsed_values: Vec<u64> = values
-                .map(|op| parse_input(op))
-                .collect();
-            
+            let parsed_values: Vec<u64> = values.map(|op| parse_input(op)).collect();
+
             if !parsed_values.is_empty() {
                 operator_values.push((*op_type, parsed_values));
             }
         }
-        
+
         // Get positions for this operator type
         if let Some(indices) = matches.indices_of(arg_name) {
-            let op_positions: Vec<(usize, OPERATOR)> = indices
-                .map(|idx| (idx, *op_type))
-                .collect();
-            
+            let op_positions: Vec<(usize, OPERATOR)> = indices.map(|idx| (idx, *op_type)).collect();
+
             all_ops_pos.extend(op_positions);
         }
     }
-    
+
     // Sort operators by their position in the command line
     all_ops_pos.sort_by(|a, b| a.0.cmp(&b.0));
-    
+
     // Assemble the final list of operations in order
     let mut assembled_math_ops = Vec::with_capacity(all_ops_pos.len());
-    
+
     for (_, op_type) in all_ops_pos {
         // Find the correct value collection for this operator type
-        let value_idx = operator_values
-            .iter_mut()
-            .position(|(op, _)| *op == op_type);
-        
+        let value_idx = operator_values.iter_mut().position(|(op, _)| *op == op_type);
+
         if let Some(idx) = value_idx {
             if let Some(value) = operator_values[idx].1.pop() {
                 assembled_math_ops.push((op_type, value));
@@ -134,7 +128,7 @@ fn assemble_math_ops(matches: &clap::ArgMatches) -> Option<Vec<(OPERATOR, u64)>>
             return None;
         }
     }
-    
+
     Some(assembled_math_ops)
 }
 
@@ -329,4 +323,80 @@ fn convert_color(color: Color) -> CrossColor {
         Color::Indexed(i) => CrossColor::AnsiValue(i),
         _ => CrossColor::Reset,
     }
+}
+
+// Test module with conditional compilation
+#[cfg(test)]
+mod tests {
+    use clap::ArgMatches;
+
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        let mut input = 0x3fce00d1b71758e2;
+        let matches = build_match(vec!["numvert", "0x3fce00d1b71758e2", "-p", "10"]);
+
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0x3fce00d1b71758ec);
+    }
+
+
+
+    fn build_match(args: Vec<&str>) -> ArgMatches {
+        Command::new("numvert")
+        .version("0.1")
+        .about("A byte tool")
+        .author("daryan")
+        // Define the positional argument
+        .arg(Arg::new("input").help("The input required for analysis").required(true).index(1))
+        .arg(
+            Arg::new("minus")
+                .short('m')
+                .long("minus")
+                .aliases(&["dif", "sub"])
+                .help("Subtraction operator (-)")
+                .action(ArgAction::Append),
+        )
+        .arg(
+            Arg::new("plus")
+                .short('p')
+                .long("plus")
+                .aliases(&["sum", "add"])
+                .help("Addition operator (+)")
+                .action(ArgAction::Append),
+        )
+        .arg(
+            Arg::new("times")
+                .short('x')
+                .visible_short_alias('t')
+                .long("times")
+                .aliases(&["mult"])
+                .help("Multiplication operator (*)")
+                .action(ArgAction::Append),
+        )
+        .arg(Arg::new("div").short('d').long("div").help("Division operator (/)").action(ArgAction::Append))
+        .arg(
+            Arg::new("left-shift")
+                .short('l')
+                .long("left-shift")
+                .aliases(&["ls"])
+                .help("Left shift operator (<<)")
+                .action(ArgAction::Append),
+        )
+        .arg(
+            Arg::new("right-shift")
+                .short('r')
+                .long("right-shift")
+                .aliases(&["rs", "right-shft"])
+                .help("Right shift operator (>>)")
+                .action(ArgAction::Append),
+        )
+        .arg(Arg::new("and").short('a').long("and").help("Bitwise AND operator (&)").action(ArgAction::Append))
+        .arg(Arg::new("or").short('o').long("or").help("Bitwise OR operator (|)").action(ArgAction::Append))
+        .get_matches_from(args)
+    }
+
+
 }
