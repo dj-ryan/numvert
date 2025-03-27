@@ -8,5 +8,5 @@ edition = "2024"
 [dependencies]
 ratatui = "0.29.0"
 color-eyre = "0.6.3"
-clap = "4.5.32"
+clap = "4.5.34"
 crossterm = "0.28.1"
