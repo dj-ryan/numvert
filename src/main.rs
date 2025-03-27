@@ -71,15 +71,15 @@ fn math_engine(input: u64, operations: Vec<(OPERATOR, u64)>) -> u64 {
 
 fn assemble_math_ops(matches: &clap::ArgMatches) -> Option<Vec<(OPERATOR, u64)>> {
 
-    let mut add_ops_val: Option<Vec<u64>> = matches.get_many::<String>("plus").and_then(|ops| Some(ops.map(|op| op.parse::<u64>().unwrap()).collect()));
-    let mut sub_ops_val: Option<Vec<u64>> = matches.get_many::<String>("minus").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-    let mut mult_ops_val: Option<Vec<u64>> = matches.get_many::<String>("times").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-    let mut div_ops_val: Option<Vec<u64>> = matches.get_many::<String>("div").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-    let mut left_shift_ops_val: Option<Vec<u64>> = matches.get_many::<String>("left-shift").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-    let mut right_shift_ops_val: Option<Vec<u64>> = matches.get_many::<String>("right-shift").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-    let mut and_ops_val: Option<Vec<u64>> = matches.get_many::<String>("and").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-    let mut or_ops_val: Option<Vec<u64>> = matches.get_many::<String>("or").map(|ops| ops.map(|op| op.parse::<u64>().unwrap()).collect());
-
+    let mut add_ops_val: Option<Vec<u64>> = matches.get_many::<String>("plus").and_then(|ops| Some(ops.map(|op| parse_input(op)).collect()));
+    let mut sub_ops_val: Option<Vec<u64>> = matches.get_many::<String>("minus").map(|ops| ops.map(|op| parse_input(op)).collect());
+    let mut mult_ops_val: Option<Vec<u64>> = matches.get_many::<String>("times").map(|ops| ops.map(|op| parse_input(op)).collect());
+    let mut div_ops_val: Option<Vec<u64>> = matches.get_many::<String>("div").map(|ops| ops.map(|op| parse_input(op)).collect());
+    let mut left_shift_ops_val: Option<Vec<u64>> = matches.get_many::<String>("left-shift").map(|ops| ops.map(|op| parse_input(op)).collect());
+    let mut right_shift_ops_val: Option<Vec<u64>> = matches.get_many::<String>("right-shift").map(|ops| ops.map(|op| parse_input(op)).collect());
+    let mut and_ops_val: Option<Vec<u64>> = matches.get_many::<String>("and").map(|ops| ops.map(|op| parse_input(op)).collect());
+    let mut or_ops_val: Option<Vec<u64>> = matches.get_many::<String>("or").map(|ops| ops.map(|op| parse_input(op)).collect());
+    
     let mut all_ops_pos: Vec<(usize, OPERATOR)> = Vec::new();
 
     if let Some(indices) = matches.indices_of("plus").and_then(|indices| Some(indices.map(|op| (op, OPERATOR::plus)))) {
@@ -181,7 +181,7 @@ fn main() {
         .arg(Arg::new("or").short('o').long("or").help("Bitwise OR operator (|)").action(ArgAction::Append))
         .get_matches();
 
-    let mut input = parse_input(matches.get_one::<String>("input").unwrap());
+    let mut input: u64 = parse_input(matches.get_one::<String>("input").unwrap());
 
     let math_ops = assemble_math_ops(&matches);
     input = math_engine(input, math_ops.unwrap());
