@@ -1,0 +1,14 @@
+# Created using wingetcreate 1.9.4.0
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+
+PackageIdentifier: daryan.numvert
+PackageVersion: 1.0.0.0
+InstallerLocale: en-US
+InstallerType: wix
+ProductCode: '{9C455A41-9B65-4FE0-BA56-4AC53E9804B9}'
+Installers:
+- Architecture: x86
+  InstallerUrl: https://github.com/dj-ryan/numvert/releases/download/v1.0.0/numvert.msi
+  InstallerSha256: D095F09EA4C3B051BAC9A83857EE3C67D32BD94EC559ACC5453499EFB1BC0E03
+ManifestType: installer
+ManifestVersion: 1.9.0
