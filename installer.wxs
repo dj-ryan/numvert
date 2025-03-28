@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+   <!-- Define the product ID and version -->
+   <Product Id="*" 
+            Name="numvert" 
+            Language="1033" 
+            Version="1.0.0.0" 
+            Manufacturer="daryan" 
+            UpgradeCode="bbc052a1-ecd1-463e-983a-2b4743a80f6b">
+      
+      <Package InstallerVersion="200" 
+               Compressed="yes" 
+               InstallScope="perMachine" 
+               Description="Installer for numvert"/>
+
+      <MajorUpgrade DowngradeErrorMessage="A newer version of numvert is already installed."/>
+      <MediaTemplate EmbedCab="yes"/>
+
+      <!-- Define the directory structure -->
+      <Directory Id="TARGETDIR" Name="SourceDir">
+         <Directory Id="ProgramFilesFolder">
+            <Directory Id="INSTALLFOLDER" Name="numvert"/>
+         </Directory>
+         <Directory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="numvert"/>
+         </Directory>
+      </Directory>
+
+      <!-- Define components to install -->
+      <DirectoryRef Id="INSTALLFOLDER">
+         <Component Id="ApplicationBinary" Guid="*">
+            <File Id="AppEXE" 
+                  Name="numvert.exe" 
+                  Source="target\release\numvert.exe" 
+                  KeyPath="yes"/>
+         </Component>
+         <!-- Add more components for additional files -->
+      </DirectoryRef>
+
+      <!-- Create shortcuts -->
+      <DirectoryRef Id="ApplicationProgramsFolder">
+         <Component Id="ApplicationShortcut" Guid="*">
+            <Shortcut Id="ApplicationStartMenuShortcut" 
+                      Name="numvert" 
+                      Description="My Rust Application" 
+                      Target="[INSTALLFOLDER]numvert.exe" 
+                      WorkingDirectory="INSTALLFOLDER"/>
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+            <RegistryValue Root="HKCU" 
+                           Key="Software\YourCompany\numvert" 
+                           Name="installed" 
+                           Type="integer" 
+                           Value="1" 
+                           KeyPath="yes"/>
+         </Component>
+      </DirectoryRef>
+
+      <!-- Define features to install -->
+      <Feature Id="ProductFeature" Title="numvert" Level="1">
+         <ComponentRef Id="ApplicationBinary"/>
+         <ComponentRef Id="ApplicationShortcut"/>
+         <!-- Reference additional components here -->
+      </Feature>
+   </Product>
+</Wix>

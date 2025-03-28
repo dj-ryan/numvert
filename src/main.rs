@@ -336,11 +336,74 @@ mod tests {
     fn test_add() {
         let mut input = 0x3fce00d1b71758e2;
         let matches = build_match(vec!["numvert", "0x3fce00d1b71758e2", "-p", "10"]);
-
         let math_ops = assemble_math_ops(&matches);
         input = math_engine(input, math_ops.unwrap());
         assert_eq!(input, 0x3fce00d1b71758ec);
     }
+
+    #[test]
+    fn test_subtract() {
+        let mut input = 0x3fce00d1b71758e2;
+        let matches = build_match(vec!["numvert", "0x3fce00d1b71758e2", "-m", "10"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0x3fce00d1b71758d8);
+    }
+
+    #[test]
+    fn test_multiply() {
+        let mut input = 0x10;
+        let matches = build_match(vec!["numvert", "0x10", "-x", "2"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0x20);
+    }
+
+    #[test]
+    fn test_divide() {
+        let mut input = 0x20;
+        let matches = build_match(vec!["numvert", "0x20", "-d", "2"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0x10);
+    }
+
+    #[test]
+    fn test_left_shift() {
+        let mut input = 0x10;
+        let matches = build_match(vec!["numvert", "0x10", "-l", "1"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0x20);
+    }
+
+    #[test]
+    fn test_right_shift() {
+        let mut input = 0x20;
+        let matches = build_match(vec!["numvert", "0x20", "-r", "1"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0x10);
+    }
+
+    #[test]
+    fn test_and() {
+        let mut input = 0xff;
+        let matches = build_match(vec!["numvert", "0xff", "-a", "0xf0"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0xf0);
+    }
+
+    #[test]
+    fn test_or() {
+        let mut input = 0xf0;
+        let matches = build_match(vec!["numvert", "0xf0", "-o", "0x0f"]);
+        let math_ops = assemble_math_ops(&matches);
+        input = math_engine(input, math_ops.unwrap());
+        assert_eq!(input, 0xff);
+    }
+
 
 
 
