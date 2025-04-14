@@ -41,7 +41,8 @@ enum OPERATOR {
     right_shift,
     and,
     or,
-    // xor,
+    xor,
+    not,
 }
 
 // struct math_flags
@@ -56,7 +57,8 @@ fn execute_op(input: u64, op: OPERATOR, value: u64) -> u64 {
         OPERATOR::right_shift => input >> value,
         OPERATOR::and => input & value,
         OPERATOR::or => input | value,
-        // OPERATOR::xor => input ^ value,
+        OPERATOR::xor => input ^ value,
+        OPERATOR::not => !input,
     }
 }
 
@@ -80,10 +82,12 @@ fn assemble_math_ops(matches: &clap::ArgMatches) -> Option<Vec<(OPERATOR, u64)>>
         (OPERATOR::right_shift, "right-shift"),
         (OPERATOR::and, "and"),
         (OPERATOR::or, "or"),
+        (OPERATOR::xor, "xor"),
+        (OPERATOR::not, "not"),
     ];
 
     // Collect values and positions for each operator type
-    let mut operator_values = Vec::new();
+    let mut operator_values: Vec<(OPERATOR, Vec<u64>)> = Vec::new();
     let mut all_ops_pos = Vec::new();
 
     for (op_type, arg_name) in &operator_configs {
@@ -183,6 +187,8 @@ fn main() {
         )
         .arg(Arg::new("and").short('a').long("and").help("Bitwise AND operator (&)").action(ArgAction::Append))
         .arg(Arg::new("or").short('o').long("or").help("Bitwise OR operator (|)").action(ArgAction::Append))
+        .arg(Arg::new("xor").short('e').long("xor").help("Bitwise XOR operator(^)").action(ArgAction::Append))
+        .arg(Arg::new("not").short('n').long("not").help("Bitwise NOT operator(!)").action(ArgAction::Append))
         .get_matches();
 
     let mut input: u64 = parse_input(matches.get_one::<String>("input").unwrap());
